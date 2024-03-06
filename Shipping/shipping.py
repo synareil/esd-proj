@@ -1,67 +1,48 @@
 #!/usr/bin/env python3
-# The above shebang (#!) operator tells Unix-like environments
-# to run this file as a python3 script
-
-import os
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-
-app = Flask(__name__)
-CORS(app)
+import amqp_connection
+import json
+import pika
+#from os import environ
 
 
-#this is for shipping record
-@app.route("/shipping", methods=['POST'])
-def receiveOrder():
-    # Check if the order contains valid JSON
-    order = None
-    if request.is_json:
-        order = request.get_json()
-        result = processOrder(order)
-        return jsonify(result), result["code"]
-    else:
-        data = request.get_data()
-        print("Received an invalid order:")
-        print(data)
+a_queue_name = 'shipping' # queue to be subscribed by Activity_Log microservice
 
-        #SEND IT TO THE DATABASE FOR LOGGING / Record in File for database HERE
+# Instead of hardcoding the values, we can also get them from the environ as shown below
+# a_queue_name = environ.get('Activity_Log') #Activity_Log
 
-        return jsonify({"code": 400,
-                        # make the data string as we dunno what could be the actual format
-                        "data": str(data),
-                        "message": "Order should be in JSON."}), 400  # Bad Request input
+def receiveOrderLog(channel):
+    try:
+        # set up a consumer and start to wait for coming messages
+        channel.basic_consume(queue=a_queue_name, on_message_callback=callback, auto_ack=True)
+        print('shipping: Consuming from queue:', a_queue_name)
+        channel.start_consuming()  # an implicit loop waiting to receive messages;
+             #it doesn't exit by default. Use Ctrl+C in the command window to terminate it.
+    
+    except pika.exceptions.AMQPError as e:
+        print(f"shipping: Failed to connect: {e}") # might encounter error if the exchange or the queue is not created
+
+    except KeyboardInterrupt:
+        print("shipping: Program interrupted by user.") 
 
 
-def processOrder(order):
-    print("Processing an order for shipping:")
-    print(order)
-    # Can do anything here, but aiming to keep it simple (atomic)
-    order_id = order['order_id']
-    # If customer id contains "ERROR", simulate failure
-    if "ERROR" in order['customer_id']:
-        code = 400
-        message = '[FAIL] Could not create shipping order record for order ' + order_id
-        #SEND IT TO THE DATABASE FOR LOGGING / Record in File for database HERE
-
-    else:  # simulate success
-        code = 201
-        message = '[SUCCESS] Created shipping order record for order ' + order_id + ' successfully.'
-        #SEND IT TO THE DATABASE FOR LOGGING / Record in File for database HERE
-
-    print(message)
+def callback(channel, method, properties, body): # required signature for the callback; no return
+    print("\nshipping: Received an order by " + __file__)
+    processOrder(json.loads(body))
     print()
 
-    return {
-        'code': code,
-        'data': {
-            'order_id': order_id
-        },
-        'message': message
-    }
+def processOrder(order):
+    print("shipping: Recording an order:")
+    print(order)
+    #Connect and send to Database for logging - regarding the specific details
 
+def sendToDB(order):
+    #Connect and send to Database for logging - regarding the specific details
+    order_id = order['order_id']
+    pass
 
-# execute this program only if it is run as a script (not by 'import')
-if __name__ == "__main__":
-    print("This is flask " + os.path.basename(__file__) +
-          ": shipping for orders ...")
-    app.run(host='0.0.0.0', port=5002, debug=True)
+if __name__ == "__main__":  # execute this program only if it is run as a script (not by 'import')
+    print("shipping: Getting Connection")
+    connection = amqp_connection.create_connection() #get the connection to the broker
+    print("shipping: Connection established successfully")
+    channel = connection.channel()
+    receiveOrderLog(channel)
