@@ -37,7 +37,7 @@ def processOrder(order):
 
 def sendToDB(order):
     #Connect and send to Database for logging - regarding the specific details
-    order_id = order['order_id']
+    OrderID = order['OrderID']
     pass
 
 if __name__ == "__main__":  # execute this program only if it is run as a script (not by 'import')
