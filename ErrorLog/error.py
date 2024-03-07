@@ -2,6 +2,7 @@
 import amqp_connection
 import json
 import pika
+import docker #need download
 #from os import environ
 
 e_queue_name = 'Error'        # queue to be subscribed by Error microservice
@@ -25,6 +26,13 @@ def receiveError(channel):
 
 def callback(channel, method, properties, body): # required signature for the callback; no return
     print("\nerror microservice: Received an error by " + __file__)
+
+    microservices = ["Order"]
+    for microname in microservices:
+        check_and_restart_container(microname)
+        #check if all the containers is up and running
+        # else it would restart it
+
     processError(body)
     print()
 
@@ -37,6 +45,22 @@ def processError(errorMsg):
         print("--NOT JSON:", e)
         print("--DATA:", errorMsg)
     print()
+
+#only test this when we done with the project based 3 scenarios.
+def check_and_restart_container(container_name):
+    client = docker.from_env()
+
+    try:
+        container = client.containers.get(container_name)
+        if container.status != 'running':
+            print(f"Microservice {container_name} is down. Restarting...")
+            container.restart()
+            print(f"Microservice {container_name} has been restarted.")
+    except docker.errors.NotFound:
+        print(f"No such container: {container_name}")
+    except docker.errors.APIError as e:
+        print(f"An error occurred: {e}")
+
 
 if __name__ == "__main__": # execute this program only if it is run as a script (not by 'import')    
     print("error microservice: Getting Connection")
