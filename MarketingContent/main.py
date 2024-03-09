@@ -52,13 +52,25 @@ def send_to_rabbitmq(message: dict):
                           ))
     connection.close()
 
+class Item(BaseModel):
+    title: str
+    desc: str
+    price: float
+    image: str
+
+class NewItemMarketingRequest(BaseModel):
+    title: str
+    desc: str
+    item1: Item
+    item2: Item
+    item3: Item
+
+
 class MarketingContentRequest(BaseModel):
     title: str = Field(min_length=3)
     content_type: str = Field(min_length=3)
     content_body: str = Field(min_length=3)
-    status: str = Field(min_length=3)
-    created_at: datetime
-    tags: str = Field(min_length=3)
+    tags: str = Field(min_length=3, default=None)
 
 
 @app.get("/", status_code=status.HTTP_200_OK)
@@ -87,3 +99,12 @@ async def create_marketing(db: db_dependency, marketingContent_request: Marketin
     send_to_rabbitmq(message)
 
     return marketingcontent_model
+
+
+@app.post("/marketingcontent/newitem", status_code=status.HTTP_201_CREATED)
+async def create_marketing(newItem_request: NewItemMarketingRequest):
+    message = newItem_request.model_dump()
+
+    send_to_rabbitmq(message)
+
+    return newItem_request
