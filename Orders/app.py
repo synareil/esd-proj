@@ -157,23 +157,6 @@ def create_order(orderID):
             }
         ), 500
         
-    for orderitem in data["items"]:
-        orderItem_model = OrderItem(orderID, orderitem)
-        try:
-            db.session.add(orderItem_model)
-        except:
-            return jsonify(
-            {
-                "code": 500,
-                "data": {
-                    "orderID": orderID,
-                    "itemID": orderitem
-                },
-                "message": "An error occurred creating the order."
-            }
-            ), 500
-    
-    db.session.commit()
     return jsonify(
         {
             "code": 201,
