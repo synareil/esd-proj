@@ -2,7 +2,7 @@
 import amqp_connection
 import json
 import pika
-import docker #need download
+#import docker #need download
 from app import create_error_log
 #from os import environ
 
@@ -44,7 +44,7 @@ def processError(errorMsg):
         error = json.loads(errorMsg)
         print("--JSON:", error)
         create_error_log(error['Date'], error['Time'], error['Desc'], error['Microservice'])
-        
+
     except Exception as e:
         print("--NOT JSON:", e)
         print("--DATA:", errorMsg)
