@@ -16,8 +16,7 @@ class Shipping(db.Model):
     shippingAddress = db.Column(db.String(100), nullable=False)
     ShippingStatus = db.Column(db.String(100), nullable=False)
 
-    def __init__(self, ShippingID, OrderID, UserID, shippingAddress, ShippingStatus):
-        self.ShippingID = ShippingID
+    def __init__(self, OrderID, UserID, shippingAddress, ShippingStatus):
         self.OrderID = OrderID
         self.UserID = UserID
         self.shippingAddress = shippingAddress
@@ -72,27 +71,11 @@ def get_shipping_details_by_OrderID(OrderID):
     ), 404
 
 # create new shipping record
-@app.route("/shipping/<string:OrderID>", methods=['POST'])
-def create_shipping_record(OrderID):
-    if (db.session.scalars(
-      db.select(Shipping).filter_by(OrderID=OrderID).
-      limit(1)
-      ).first()
-      ):
-        return jsonify(
-            {
-                "code": 400,
-                "data": {
-                    "OrderID": OrderID
-                },
-                "message": "Shipping record " + OrderID + " already exists."
-            }
-        ), 400
-
+@app.route("/CreateShipping", methods=['POST'])
+def create_shipping_record():
     data = request.get_json()
     print(data)
-    shipping_details = Shipping(OrderID, **data)
-
+    shipping_details = Shipping(**data)
 
     try:
         db.session.add(shipping_details)
@@ -102,7 +85,7 @@ def create_shipping_record(OrderID):
             {
                 "code": 500,
                 "data": {
-                    "OrderID": OrderID
+                    "OrderID": data.get('OrderID', '')  # Assuming OrderID is part of the request data
                 },
                 "message": "An error occurred creating the shipping details."
             }
@@ -113,6 +96,48 @@ def create_shipping_record(OrderID):
             "data": shipping_details.json()
         }
     ), 201
+
+# @app.route("/createshipping/<string:ShippingID>", methods=['POST'])
+# def create_shipping_record(ShippingID):
+#     if (db.session.scalars(
+#       db.select(Shipping).filter_by(ShippingID=ShippingID).
+#       limit(1)
+#       ).first()
+#       ):
+#         return jsonify(
+#             {
+#                 "code": 400,
+#                 "data": {
+#                     "ShippingID": ShippingID
+#                 },
+#                 "message": "Shipping record " + ShippingID + " already exists."
+#             }
+#         ), 400
+
+#     data = request.get_json()
+#     print(data)
+#     shipping_details = Shipping(ShippingID, **data)
+
+
+#     try:
+#         db.session.add(shipping_details)
+#         db.session.commit()
+#     except:
+#         return jsonify(
+#             {
+#                 "code": 500,
+#                 "data": {
+#                     "OrderID": OrderID
+#                 },
+#                 "message": "An error occurred creating the shipping details."
+#             }
+#         ), 500
+#     return jsonify(
+#         {
+#             "code": 201,
+#             "data": shipping_details.json()
+#         }
+#     ), 201
 
 
 # update shipping Record by ShippingID -> not sure if want update via orderID or shippingID
