@@ -27,10 +27,9 @@ class Shipping(db.Model):
                 "shippingAddress": self.shippingAddress, "ShippingStatus": self.ShippingStatus}
 
 # GET shipping details
-@app.route("/shipping")
+@app.route("/Shipping")
 def get_all():
     shipping_details = db.session.scalars(db.select(Shipping)).all()
-
 
     if len(shipping_details):
         return jsonify(
@@ -49,7 +48,7 @@ def get_all():
     ), 404
 
 # get shipping_details by OrderID
-@app.route("/shipping/<string:OrderID>")
+@app.route("/Shipping/<string:OrderID>")
 def get_shipping_details_by_OrderID(OrderID):
     details = db.session.scalars(
     	db.select(Shipping).filter_by(OrderID=OrderID).
@@ -75,6 +74,20 @@ def get_shipping_details_by_OrderID(OrderID):
 def create_shipping_record():
     data = request.get_json()
     print(data)
+
+    # Check if a record with the same ShippingID already exists
+    existing_shipping = Shipping.query.filter_by(ShippingID=data.get('ShippingID')).first()
+    if existing_shipping is not None:
+        return jsonify(
+            {
+                "code": 400,
+                "data": {
+                    "ShippingID": data.get('ShippingID')
+                },
+                "message": "A record with the same ShippingID of " +  data.get('ShippingID') + "already exists."
+            }
+        ), 400
+
     shipping_details = Shipping(**data)
 
     try:
