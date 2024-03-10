@@ -3,6 +3,7 @@ import amqp_connection
 import json
 import pika
 import docker #need download
+# from app import create_error_log
 #from os import environ
 
 e_queue_name = 'Error'        # queue to be subscribed by Error microservice
@@ -27,11 +28,12 @@ def receiveError(channel):
 def callback(channel, method, properties, body): # required signature for the callback; no return
     print("\nerror microservice: Received an error by " + __file__)
 
-    microservices = ["Order"]
-    for microname in microservices:
-        check_and_restart_container(microname)
+############################################################
+    #for microname in microservices:
+        #check_and_restart_container(microname)
         #check if all the containers is up and running
         # else it would restart it
+############################################################
 
     processError(body)
     print()
@@ -41,6 +43,7 @@ def processError(errorMsg):
     try:
         error = json.loads(errorMsg)
         print("--JSON:", error)
+        create_error_log(error['Date'], error['Time'], error['Desc'], error['Microservice'])
     except Exception as e:
         print("--NOT JSON:", e)
         print("--DATA:", errorMsg)
