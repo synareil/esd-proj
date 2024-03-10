@@ -10,11 +10,11 @@ db = SQLAlchemy(app)
 class Shipping(db.Model):
     __tablename__ = 'Shipping'
 
-    ShippingID = db.column(db.Integer, primary_key=True)
-    OrderID = db.column(db.Integer, nullable=False)
-    UserID= db.column(db.Integer, nullable=False)
-    shippingAddress = db.column(db.String(100), nullable=False)
-    ShippingStatus = db.column(db.String(100), nullable=False)
+    ShippingID = db.Column(db.Integer, primary_key=True)
+    OrderID = db.Column(db.Integer, nullable=False)
+    UserID= db.Column(db.Integer, nullable=False)
+    shippingAddress = db.Column(db.String(100), nullable=False)
+    ShippingStatus = db.Column(db.String(100), nullable=False)
 
     def __init__(self, ShippingID, OrderID, UserID, shippingAddress, ShippingStatus):
         self.ShippingID = ShippingID
@@ -139,15 +139,16 @@ def update_shipping_records(ShippingID):
         if data:
             if 'shippingAddress' in data:
                 shipping_details.shippingAddress = data['shippingAddress']
-            if 'ShippingStatus ' in data:
+            if 'ShippingStatus' in data:
                 shipping_details.ShippingStatus = data['ShippingStatus']
             db.session.commit()
             return jsonify(
                 {
-                    "code": 200,
+                    "code": 201,
                     "data": shipping_details.json()
                 }
             ), 200
+        
     except Exception as e:
         return jsonify(
             {
