@@ -137,15 +137,14 @@ def create_order(orderID):
     data = request.get_json()
     print(data)
     order = Order(orderID, data['userID'], data['status'])
-    for order in data["items"]:
-        orderItemList = []
-        orderItemList.append(OrderItem(orderID, data['items']["itemID"]))
+    orderItemList = []
+    for item in data["items"]:
+        orderItemList.append(OrderItem(orderID, item))
 
 
     try:
         db.session.add(order)
-        db.session.commit()
-        db.session.add(orderItemList)
+        db.session.add_all(orderItemList)
         db.session.commit()
     except:
         return jsonify(
@@ -161,7 +160,7 @@ def create_order(orderID):
         {
             "code": 201,
             "data": order.json(),
-            "items": [OrderItem.json() for OrderItem in orderItemList]
+            "items": [item.json() for item in orderItemList]
         }
     ), 201
 
