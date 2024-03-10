@@ -205,10 +205,34 @@ def update_order(orderID):
             }
         ), 500
 
-# get order items by orderID
+# get order + order items by orderID
 @app.route("/orderitem/<string:orderID>")
 def get_orderitem_by_orderID(orderID):
-    pass
+    order = db.session.scalars(
+    	db.select(Order).filter_by(orderID=orderID).
+    	limit(1)
+    ).first()
+
+
+    if order:
+        itemlist = db.session.scalars(
+    	db.select(OrderItem).filter_by(orderID=orderID)
+        ).all()
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "order": order.json(),
+                    "items": [item.json() for item in itemlist]
+                }
+            }
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "message": "No orders found."
+        }
+    ), 404 
 
 
 if __name__ == '__main__':
