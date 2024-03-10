@@ -137,12 +137,15 @@ def create_order(orderID):
     data = request.get_json()
     print(data)
     order = Order(orderID, data['userID'], data['status'])
+    orderItemList = []
+    for item in data["items"]:
+        orderItemList.append(OrderItem(orderID, item))
 
 
     try:
         db.session.add(order)
-        # db.session.add(orderItemList)
-        # db.session.commit()
+        db.session.add_all(orderItemList)
+        db.session.commit()
     except:
         return jsonify(
             {
@@ -154,28 +157,11 @@ def create_order(orderID):
             }
         ), 500
         
-    for orderitem in data["items"]:
-        orderItem_model = OrderItem(orderID, orderitem)
-        try:
-            db.session.add(orderItem_model)
-        except:
-            return jsonify(
-            {
-                "code": 500,
-                "data": {
-                    "orderID": orderID,
-                    "itemID": orderitem
-                },
-                "message": "An error occurred creating the order."
-            }
-            ), 500
-    
-    db.session.commit()
     return jsonify(
         {
             "code": 201,
             "data": order.json(),
-            # "items": [OrderItem.json() for OrderItem in orderItemList]
+            "items": [item.json() for item in orderItemList]
         }
     ), 201
 
@@ -219,10 +205,34 @@ def update_order(orderID):
             }
         ), 500
 
-# get order items by orderID
+# get order + order items by orderID
 @app.route("/orderitem/<string:orderID>")
 def get_orderitem_by_orderID(orderID):
-    pass
+    order = db.session.scalars(
+    	db.select(Order).filter_by(orderID=orderID).
+    	limit(1)
+    ).first()
+
+
+    if order:
+        itemlist = db.session.scalars(
+    	db.select(OrderItem).filter_by(orderID=orderID)
+        ).all()
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "order": order.json(),
+                    "items": [item.json() for item in itemlist]
+                }
+            }
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "message": "No orders found."
+        }
+    ), 404 
 
 
 if __name__ == '__main__':
