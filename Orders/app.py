@@ -92,7 +92,7 @@ def get_order_by_orderID(orderID):
     ), 404
 
 # get order by status
-@app.route("/order/<string:status>")
+@app.route("/order/status/<string:status>")
 def get_order_by_status(status):
     orderlist = db.session.scalars(
     	db.select(Order).filter_by(status=status)
@@ -116,7 +116,7 @@ def get_order_by_status(status):
     ), 404
 
 # create order + orderitems
-@app.route("order/<string:orderID>", methods=["POST"])
+@app.route("/order/<string:orderID>", methods=["POST"])
 def create_order(orderID):
     if (db.session.scalars(
       db.select(Order).filter_by(orderID=orderID).
@@ -166,7 +166,7 @@ def create_order(orderID):
     ), 201
 
 # update order by orderID
-@app.route("order/<string:orderID>", methods=["PUT"])
+@app.route("/order/<string:orderID>", methods=["PUT"])
 def update_order(orderID):
     try:
         order = db.session.scalars(
@@ -206,8 +206,8 @@ def update_order(orderID):
         ), 500
 
 # get order items by orderID
-@app.route("orderitem/<string:orderID>")
-def get_order_by_orderID(orderID):
+@app.route("/orderitem/<string:orderID>")
+def get_orderitem_by_orderID(orderID):
     pass
 
 
