@@ -16,21 +16,19 @@ class Errors(db.Model):
     __tablename__ = 'Error'
 
     ErrorID = db.Column(db.Integer, primary_key=True)
-    Date = db.Column(db.Date, nullable=False) #not sure if this is the correct format -> idk if yall want use the sql date or should we just create the date ourselves. 
+    DateTime = db.Column(db.DateTime, nullable=False) #not sure if this is the correct format -> idk if yall want use the sql date or should we just create the date ourselves. 
     #new_record = MyModel(Date=date.today(), ...) -> how it works!
-    Time= db.Column(db.DateTime, nullable=False)
     Desc = db.Column(db.String(100), nullable=False)
     Microservice = db.Column(db.String(100), nullable=False) #format: "Shipping, Order" -> split by "," into an array later
 
-    def __init__(self, ErrorID, Date, Time, Desc, Microservice):
+    def __init__(self, ErrorID, DateTime, Desc, Microservice):
         self.ErrorID = ErrorID
-        self.Date = Date
-        self.Time = Time
+        self.DateTime = DateTime
         self.Desc = Desc
         self.Microservice = Microservice
 
     def json(self):
-        return {"ErrorID": self.ErrorID, "Date": self.Date, "Time": self.Time, 
+        return {"ErrorID": self.ErrorID, "DateTime": self.DateTime,
                 "Desc": self.Desc, "Microservice": self.Microservice}
 
 # GET Error Logs
@@ -81,10 +79,10 @@ def get_error_log_by_errorID(ErrorID):
 @app.route("/error/<string:ErrorID>", methods=['POST'])
 def create_error_log(ErrorID):
     if (db.session.scalars(
-      db.select(Errors).filter_by(ErrorID=ErrorID).
-      limit(1)
-      ).first()
-      ):
+        db.select(Errors).filter_by(ErrorID=ErrorID).
+        limit(1)
+        ).first()
+        ):
         return jsonify(
             {
                 "code": 400,
