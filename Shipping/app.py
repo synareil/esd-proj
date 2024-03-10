@@ -110,49 +110,6 @@ def create_shipping_record():
         }
     ), 201
 
-# @app.route("/createshipping/<string:ShippingID>", methods=['POST'])
-# def create_shipping_record(ShippingID):
-#     if (db.session.scalars(
-#       db.select(Shipping).filter_by(ShippingID=ShippingID).
-#       limit(1)
-#       ).first()
-#       ):
-#         return jsonify(
-#             {
-#                 "code": 400,
-#                 "data": {
-#                     "ShippingID": ShippingID
-#                 },
-#                 "message": "Shipping record " + ShippingID + " already exists."
-#             }
-#         ), 400
-
-#     data = request.get_json()
-#     print(data)
-#     shipping_details = Shipping(ShippingID, **data)
-
-
-#     try:
-#         db.session.add(shipping_details)
-#         db.session.commit()
-#     except:
-#         return jsonify(
-#             {
-#                 "code": 500,
-#                 "data": {
-#                     "OrderID": OrderID
-#                 },
-#                 "message": "An error occurred creating the shipping details."
-#             }
-#         ), 500
-#     return jsonify(
-#         {
-#             "code": 201,
-#             "data": shipping_details.json()
-#         }
-#     ), 201
-
-
 # update shipping Record by ShippingID -> not sure if want update via orderID or shippingID
 @app.route("/shipping/<string:ShippingID>", methods=['PUT'])
 def update_shipping_records(ShippingID):
@@ -213,6 +170,49 @@ def update_shipping_records(ShippingID):
 
 # print('Waiting for messages. To exit press CTRL+C')
 # channel.start_consuming()
+    
+# @app.route("/createshipping/<string:ShippingID>", methods=['POST'])
+# def create_shipping_record(ShippingID):
+#     if (db.session.scalars(
+#       db.select(Shipping).filter_by(ShippingID=ShippingID).
+#       limit(1)
+#       ).first()
+#       ):
+#         return jsonify(
+#             {
+#                 "code": 400,
+#                 "data": {
+#                     "ShippingID": ShippingID
+#                 },
+#                 "message": "Shipping record " + ShippingID + " already exists."
+#             }
+#         ), 400
+
+#     data = request.get_json()
+#     print(data)
+#     shipping_details = Shipping(ShippingID, **data)
+
+
+#     try:
+#         db.session.add(shipping_details)
+#         db.session.commit()
+#     except:
+#         return jsonify(
+#             {
+#                 "code": 500,
+#                 "data": {
+#                     "OrderID": OrderID
+#                 },
+#                 "message": "An error occurred creating the shipping details."
+#             }
+#         ), 500
+#     return jsonify(
+#         {
+#             "code": 201,
+#             "data": shipping_details.json()
+#         }
+#     ), 201
+
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
