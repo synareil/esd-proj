@@ -38,7 +38,7 @@ class Item(db.Model):
         return {"itemID": self.itemID, "name": self.name, "description": self.description, "qty": self.qty, "category": self.category, "price": self.price, "salesPrice": self.salesPrice}
 
 
-
+# get all items
 @app.route("/item")
 def get_all():
     itemlist = db.session.scalars(db.select(Item)).all()
@@ -60,9 +60,9 @@ def get_all():
         }
     ), 404
 
-
+# get item by itemID
 @app.route("/item/<string:itemID>")
-def find_by_itemID(itemID):
+def get_item_by_itemID(itemID):
     item = db.session.scalars(
     	db.select(Item).filter_by(itemID=itemID).
     	limit(1)
@@ -83,7 +83,7 @@ def find_by_itemID(itemID):
         }
     ), 404
 
-
+# create item
 @app.route("/item/<string:itemID>", methods=['POST'])
 def create_item(itemID):
     if (db.session.scalars(
@@ -128,7 +128,7 @@ def create_item(itemID):
     ), 201
 
 
-
+# update item by itemID
 @app.route("/item/<string:itemID>", methods=['PUT'])
 def update_book(itemID):
     try:
