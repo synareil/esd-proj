@@ -1,15 +1,11 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
-
 app = Flask(__name__)
-
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/proj_shipping'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-
 db = SQLAlchemy(app)
-
 
 class Shipping(db.Model):
     __tablename__ = 'Shipping'
@@ -20,7 +16,6 @@ class Shipping(db.Model):
     shippingAddress = db.column(db.String(100), nullable=False)
     ShippingStatus = db.column(db.String(100), nullable=False)
 
-
     def __init__(self, ShippingID, OrderID, UserID, shippingAddress, ShippingStatus):
         self.ShippingID = ShippingID
         self.OrderID = OrderID
@@ -28,11 +23,9 @@ class Shipping(db.Model):
         self.shippingAddress = shippingAddress
         self.ShippingStatus = ShippingStatus
 
-
     def json(self):
         return {"ShippingID": self.ShippingID, "OrderID": self.OrderID, "UserID": self.UserID, 
                 "shippingAddress": self.shippingAddress, "ShippingStatus": self.ShippingStatus}
-
 
 # GET shipping details
 @app.route("/shipping")
@@ -166,6 +159,22 @@ def update_shipping_records(ShippingID):
                 "message": "An error occurred while updating the shipping details. " + str(e) 
             }
         ), 500
+
+#Lowkey not sure if we need this for the AMQP part
+# import pika
+
+# def callback(ch, method, properties, body):
+#     print("Received %r" % body)
+
+# connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+# channel = connection.channel()
+
+# channel.queue_declare(queue='shipping_queue')
+
+# channel.basic_consume(queue='shipping_queue', on_message_callback=callback, auto_ack=True)
+
+# print('Waiting for messages. To exit press CTRL+C')
+# channel.start_consuming()
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)

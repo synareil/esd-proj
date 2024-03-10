@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import amqp_connection
+#import amqp_connection
 import json
 import pika
 #from os import environ
