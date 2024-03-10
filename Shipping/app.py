@@ -72,10 +72,10 @@ def get_shipping_details_by_OrderID(OrderID):
     ), 404
 
 # create new shipping record
-@app.route("/shipping/<string:ShippingID>", methods=['POST'])
-def create_shipping_record(ShippingID):
+@app.route("/shipping/<string:OrderID>", methods=['POST'])
+def create_shipping_record(OrderID):
     if (db.session.scalars(
-      db.select(Shipping).filter_by(ShippingID=ShippingID).
+      db.select(Shipping).filter_by(OrderID=OrderID).
       limit(1)
       ).first()
       ):
@@ -83,15 +83,15 @@ def create_shipping_record(ShippingID):
             {
                 "code": 400,
                 "data": {
-                    "ShippingID": ShippingID
+                    "OrderID": OrderID
                 },
-                "message": "Shipping record " + ShippingID + " already exists."
+                "message": "Shipping record " + OrderID + " already exists."
             }
         ), 400
 
     data = request.get_json()
     print(data)
-    shipping_details = Shipping(ShippingID, **data)
+    shipping_details = Shipping(OrderID, **data)
 
 
     try:
@@ -102,7 +102,7 @@ def create_shipping_record(ShippingID):
             {
                 "code": 500,
                 "data": {
-                    "ShippingID": ShippingID
+                    "OrderID": OrderID
                 },
                 "message": "An error occurred creating the shipping details."
             }
