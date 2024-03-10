@@ -57,7 +57,6 @@ def get_shipping_details_by_OrderID(OrderID):
     	limit(1) #not sure if want to limit 1 for the shipping records, for now i assume so. 
     ).first()
 
-
     if details:
         return jsonify(
             {
@@ -73,10 +72,10 @@ def get_shipping_details_by_OrderID(OrderID):
     ), 404
 
 # create new shipping record
-@app.route("/shipping/<string:OrderID>", methods=['POST'])
-def create_shipping_record(OrderID):
+@app.route("/shipping/<string:ShippingID>", methods=['POST'])
+def create_shipping_record(ShippingID):
     if (db.session.scalars(
-      db.select(Shipping).filter_by(OrderID=OrderID).
+      db.select(Shipping).filter_by(ShippingID=ShippingID).
       limit(1)
       ).first()
       ):
@@ -84,15 +83,15 @@ def create_shipping_record(OrderID):
             {
                 "code": 400,
                 "data": {
-                    "OrderID": OrderID
+                    "ShippingID": ShippingID
                 },
-                "message": "Shipping record for " + OrderID+ " already exists."
+                "message": "Shipping record " + ShippingID + " already exists."
             }
         ), 400
 
     data = request.get_json()
     print(data)
-    shipping_details = Shipping(OrderID, **data)
+    shipping_details = Shipping(ShippingID, **data)
 
 
     try:
@@ -103,7 +102,7 @@ def create_shipping_record(OrderID):
             {
                 "code": 500,
                 "data": {
-                    "OrderID": OrderID
+                    "ShippingID": ShippingID
                 },
                 "message": "An error occurred creating the shipping details."
             }
@@ -116,7 +115,7 @@ def create_shipping_record(OrderID):
     ), 201
 
 
-# update shipping Record by ShippingID
+# update shipping Record by ShippingID -> not sure if want update via orderID or shippingID
 @app.route("/shipping/<string:ShippingID>", methods=['PUT'])
 def update_shipping_records(ShippingID):
     try:
