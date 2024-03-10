@@ -137,16 +137,12 @@ def create_order(orderID):
     data = request.get_json()
     print(data)
     order = Order(orderID, data['userID'], data['status'])
-    for order in data["items"]:
-        orderItemList = []
-        orderItemList.append(OrderItem(orderID, data['items']["itemID"]))
 
 
     try:
         db.session.add(order)
-        db.session.commit()
-        db.session.add(orderItemList)
-        db.session.commit()
+        # db.session.add(orderItemList)
+        # db.session.commit()
     except:
         return jsonify(
             {
@@ -157,11 +153,29 @@ def create_order(orderID):
                 "message": "An error occurred creating the order."
             }
         ), 500
+        
+    for orderitem in data["items"]:
+        orderItem_model = OrderItem(orderID, orderitem)
+        try:
+            db.session.add(orderItem_model)
+        except:
+            return jsonify(
+            {
+                "code": 500,
+                "data": {
+                    "orderID": orderID,
+                    "itemID": orderitem
+                },
+                "message": "An error occurred creating the order."
+            }
+            ), 500
+    
+    db.session.commit()
     return jsonify(
         {
             "code": 201,
             "data": order.json(),
-            "items": [OrderItem.json() for OrderItem in orderItemList]
+            # "items": [OrderItem.json() for OrderItem in orderItemList]
         }
     ), 201
 
@@ -212,4 +226,7 @@ def get_orderitem_by_orderID(orderID):
 
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+        print("Database tables created.")
     app.run(port=5000, debug=True)
