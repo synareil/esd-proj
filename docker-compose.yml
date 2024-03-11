@@ -122,7 +122,7 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
       test: ["CMD", "rabbitmqctl", "status"]
-      interval: 10s
+      interval: 20s
       timeout: 5s
       retries: 5
 

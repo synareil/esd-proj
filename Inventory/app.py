@@ -1,13 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from os import environ
-
+from flasgger import Swagger
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-
+swagger = Swagger(app)
 db = SQLAlchemy(app)
 
 
@@ -41,10 +40,18 @@ with app.app_context():
     db.create_all()
     
 # get all items
-@app.route("/item")
+@app.route('/item', methods=['GET'])
 def get_all():
+    """
+    Retrieves all items from the database.
+    ---
+    responses:
+        200:
+            description: A list of items.
+        404:
+            description: No items found.
+    """
     itemlist = db.session.scalars(db.select(Item)).all()
-
 
     if len(itemlist):
         return jsonify(
@@ -63,8 +70,23 @@ def get_all():
     ), 404
 
 # get item by itemID
-@app.route("/item/<string:itemID>")
+@app.route("/item/<string:itemID>", methods=['GET'])
 def get_item_by_itemID(itemID):
+    """
+    Retrieves a single item by itemID.
+    ---
+    parameters:
+      - name: itemID
+        in: path
+        type: string
+        required: true
+        description: The ID of the item to retrieve.
+    responses:
+        200:
+            description: Details of an item.
+        404:
+            description: Item not found.
+    """
     item = db.session.scalars(
     	db.select(Item).filter_by(itemID=itemID).
     	limit(1)
@@ -88,6 +110,43 @@ def get_item_by_itemID(itemID):
 # create item
 @app.route("/item", methods=['POST'])
 def create_item():
+    """
+    Creates a new item in the database.
+    ---
+    parameters:
+      - in: body
+        name: item
+        description: The item to create.
+        schema:
+          type: object
+          required:
+            - name
+            - description
+            - qty
+            - category
+            - price
+            - salesPrice
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+            qty:
+              type: integer
+            category:
+              type: string
+            price:
+              type: number
+            salesPrice:
+              type: number
+    responses:
+        201:
+            description: Item created successfully.
+        400:
+            description: Invalid input.
+        500:
+            description: Internal server error.
+    """
     # if (db.session.scalars(
     #   db.select(Item).filter_by(itemID=itemID).
     #   limit(1)
@@ -134,7 +193,42 @@ def create_item():
 
 # update item by itemID
 @app.route("/item/<string:itemID>", methods=['PUT'])
-def update_book(itemID):
+def update_item(itemID):
+    """
+    Updates an existing item by itemID.
+    ---
+    parameters:
+      - name: itemID
+        in: path
+        type: string
+        required: true
+        description: The ID of the item to update.
+      - in: body
+        name: item
+        description: Updated item details.
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+            qty:
+              type: integer
+            category:
+              type: string
+            price:
+              type: number
+            salesPrice:
+              type: number
+    responses:
+        200:
+            description: Item updated successfully.
+        404:
+            description: Item not found.
+        500:
+            description: Internal server error.
+    """
     try:
         item = db.session.scalars(
         db.select(Item).filter_by(itemID=itemID).
