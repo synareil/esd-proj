@@ -1,14 +1,14 @@
 version: '3.8'
 
 services:
-  fastapi-app:
+  marketing-content:
     build: .
     volumes:
       - .:/usr/src/app
     ports:
       - "8000:80"
     depends_on:
-      - db
+      - marketing-content-db
       - rabbitmq
     environment:
       DATABASE_URL: postgresql://user:password@db:5432/mydatabase
@@ -19,7 +19,7 @@ services:
       RABBITMQ_VHOST: "/"
     command: uvicorn main:app --host 0.0.0.0 --port 80 --reload
 
-  db:
+  marketing-content-db:
     image: postgres:13
     volumes:
       - postgres_data:/var/lib/postgresql/data

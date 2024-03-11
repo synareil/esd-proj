@@ -5,7 +5,6 @@ from os import environ
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/proj_inventory'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
@@ -38,7 +37,9 @@ class Item(db.Model):
     def json(self):
         return {"itemID": self.itemID, "name": self.name, "description": self.description, "qty": self.qty, "category": self.category, "price": self.price, "salesPrice": self.salesPrice}
 
-
+with app.app_context():
+    db.create_all()
+    
 # get all items
 @app.route("/item")
 def get_all():
