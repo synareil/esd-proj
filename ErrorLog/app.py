@@ -15,7 +15,7 @@ db = SQLAlchemy(app)
 class Errors(db.Model):
     __tablename__ = 'Error'
 
-    ErrorID = db.Column(db.Integer, primary_key=True)
+    ErrorID = db.Column(db.Integer, primary_key=True, autoincrement=True)
     DateTime = db.Column(db.DateTime, nullable=False) #not sure if this is the correct format -> idk if yall want use the sql date or should we just create the date ourselves. 
     #new_record = MyModel(Date=date.today(), ...) -> how it works!
     Desc = db.Column(db.String(100), nullable=False)
@@ -90,7 +90,8 @@ def create_error_log():
                 "message": "Error record " + data.get('ErrorID') + " already exists."
             }
         ), 400
-    
+
+    data.pop('ErrorID', None)
     error_log_details = Errors(**data)
 
     try:

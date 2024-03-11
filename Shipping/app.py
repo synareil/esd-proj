@@ -10,7 +10,7 @@ db = SQLAlchemy(app)
 class Shipping(db.Model):
     __tablename__ = 'Shipping'
 
-    ShippingID = db.Column(db.Integer, primary_key=True)
+    ShippingID = db.Column(db.Integer, primary_key=True, autoincrement=True)
     OrderID = db.Column(db.Integer, nullable=False)
     UserID= db.Column(db.Integer, nullable=False)
     shippingAddress = db.Column(db.String(100), nullable=False)
@@ -88,6 +88,7 @@ def create_shipping_record():
             }
         ), 400
 
+    data.pop('ShippingID', None)
     shipping_details = Shipping(**data)
 
     try:
