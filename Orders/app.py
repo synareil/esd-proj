@@ -15,7 +15,7 @@ class Order(db.Model):
     __tablename__ = 'orders'
 
 
-    orderID = db.Column(db.Integer, primary_key=True)
+    orderID = db.Column(db.Integer, primary_key=True, autoincrement=True)
     userID = db.Column(db.Integer, nullable=False)
     status = db.Column(db.String(64), nullable=False)
 
@@ -116,28 +116,28 @@ def get_order_by_status(status):
     ), 404
 
 # create order + orderitems
-@app.route("/order/<string:orderID>", methods=["POST"])
-def create_order(orderID):
-    if (db.session.scalars(
-      db.select(Order).filter_by(orderID=orderID).
-      limit(1)
-      ).first()
-      ):
-        return jsonify(
-            {
-                "code": 400,
-                "data": {
-                    "orderID": orderID
-                },
-                "message": "Order already exists."
-            }
-        ), 400
-
+@app.route("/order", methods=["POST"])
+def create_order():
+    # data = request.get_json()
+    # # Check if a record with the same ShippingID already exists
+    # existing = Order.query.filter_by(orderID=data.get('orderID')).first()
+    # if existing is not None:
+    #     return jsonify(
+    #         {
+    #             "code": 400,
+    #             "data": {
+    #                 "ShippingID": data.get('ShippingID')
+    #             },
+    #             "message": "A record with the same ShippingID of " +  data.get('ShippingID') + "already exists."
+    #         }
+    #     ), 400
 
     data = request.get_json()
     print(data)
-    order = Order(orderID, data['userID'], data['status'])
+    data.pop('orderID', None)
+    order = Order(data['userID'], data['status'])
     orderItemList = []
+    orderID = order.orderID
     for item in data["items"]:
         orderItemList.append(OrderItem(orderID, item))
 
