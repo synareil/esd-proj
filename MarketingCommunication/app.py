@@ -1,18 +1,19 @@
-import pika, json, requests, os
-
-import time
+import pika
+import json
+import os
+import sys
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 from pprint import pprint
 
 # Configure API key authorization: api-key
 configuration = sib_api_v3_sdk.Configuration()
-configuration.api_key['api-key'] = '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'
+configuration.api_key['api-key'] = os.getenv("API-KEY")
 
 def callback(ch, method, properties, body):
     # Process the message
     message = json.loads(body)
-    print(f"Received message: {message}")
+    sys.stdout.write(f"Received message: {message}\n")
     
     api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
     to = [{"email":"julian.maximal@gmail.com","name":"Julian Willis"}]
@@ -24,9 +25,10 @@ def callback(ch, method, properties, body):
     
     try:
         api_response = api_instance.send_transac_email(send_smtp_email)
-        pprint(api_response)
+        sys.stdout.write("API response:\n")
+        pprint(api_response, stream=sys.stdout)
     except ApiException as e:
-        print("Exception when calling SMTPApi->send_transac_email: %s\n" % e)
+        sys.stderr.write(f"Exception when calling SMTPApi->send_transac_email: {e}\n")
 
     # Acknowledge that the message has been processed
     ch.basic_ack(delivery_tag=method.delivery_tag)
@@ -52,7 +54,7 @@ def start_consuming():
     channel.basic_qos(prefetch_count=1)
     channel.basic_consume(queue=queue_name, on_message_callback=callback)
 
-    print('Waiting for messages. To exit press CTRL+C')
+    sys.stdout.write('Waiting for messages. To exit press CTRL+C\n')
     channel.start_consuming()
 
 if __name__ == "__main__":

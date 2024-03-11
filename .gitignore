@@ -9,4 +9,5 @@ ENV/
 env/
 env.bak/
 venv.bak/
+env_files/
 >>>>>>> Stashed changes

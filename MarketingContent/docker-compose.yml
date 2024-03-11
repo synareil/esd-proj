@@ -10,13 +10,8 @@ services:
     depends_on:
       - marketing-content-db
       - rabbitmq
-    environment:
-      DATABASE_URL: postgresql://user:password@db:5432/mydatabase
-      RABBITMQ_USER: user
-      RABBITMQ_PASSWORD: password
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_VHOST: "/"
+    env_file:
+      - ./env_files/marketing_content.env
     command: uvicorn main:app --host 0.0.0.0 --port 80 --reload
 
   marketing-content-db:
@@ -28,14 +23,33 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: mydatabase
 
+  marketing-communication:
+    build: ../marketingcommunication/.
+    ports:
+      - "5002:80"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    env_file:
+      - ./env_files/marketing_communication.env
+
   rabbitmq:
     image: "rabbitmq:3-management"
-    environment:
-      RABBITMQ_DEFAULT_USER: user
-      RABBITMQ_DEFAULT_PASS: password
     ports:
       - "15672:15672"
       - "5672:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+      RABBITMQ_DEFAULT_VHOST: "/"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
+  rabbitmq_data:
