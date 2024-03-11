@@ -21,22 +21,19 @@ class Errors(db.Model):
     Desc = db.Column(db.String(100), nullable=False)
     Microservice = db.Column(db.String(100), nullable=False) #format: "Shipping, Order" -> split by "," into an array later
 
-    def __init__(self, ErrorID, DateTime, Desc, Microservice):
-        self.ErrorID = ErrorID
+    def __init__(self, DateTime, Desc, Microservice):
         self.DateTime = DateTime
         self.Desc = Desc
         self.Microservice = Microservice
 
     def json(self):
-        return {"ErrorID": self.ErrorID, "DateTime": self.DateTime,
+        return {"DateTime": self.DateTime,
                 "Desc": self.Desc, "Microservice": self.Microservice}
 
 # GET Error Logs
-@app.route("/error")
+@app.route("/Error")
 def get_all_errors():
     error_logs = db.session.scalars(db.select(Errors)).all()
-
-
     if len(error_logs):
         return jsonify(
             {
@@ -54,7 +51,7 @@ def get_all_errors():
     ), 404
 
 # get error details by errorID -> can consider creating another function for getting via date etc
-@app.route("/error/<string:ErrorID>")
+@app.route("/Error/<string:ErrorID>")
 def get_error_log_by_errorID(ErrorID):
     details = db.session.scalars(
     	db.select(Errors).filter_by(ErrorID=ErrorID).
@@ -76,26 +73,25 @@ def get_error_log_by_errorID(ErrorID):
     ), 404
 
 # create new error log
-@app.route("/error/<string:ErrorID>", methods=['POST'])
-def create_error_log(ErrorID):
-    if (db.session.scalars(
-        db.select(Errors).filter_by(ErrorID=ErrorID).
-        limit(1)
-        ).first()
-        ):
+@app.route("/CreateError", methods=['POST'])
+def create_error_log():
+    data = request.get_json()
+    print(data)
+
+    #check if error log exists
+    existing_error_log = Errors.query.filter_by(ErrorID=data.get('ErrorID')).first()
+    if existing_error_log is not None:
         return jsonify(
             {
                 "code": 400,
                 "data": {
-                    "ErrorID": ErrorID
+                    "ErrorID": data.get('ErrorID')
                 },
-                "message": "Error record " + ErrorID + " already exists."
+                "message": "Error record " + data.get('ErrorID') + " already exists."
             }
         ), 400
-
-    data = request.get_json()
-    print(data)
-    error_log_details = Errors(ErrorID, **data)
+    
+    error_log_details = Errors(**data)
 
     try:
         db.session.add(error_log_details)
@@ -105,7 +101,7 @@ def create_error_log(ErrorID):
             {
                 "code": 500,
                 "data": {
-                    "ErrorID": ErrorID
+                    "ErrorID": data.get('ErrorID', '')
                 },
                 "message": "An error occurred creating the error log."
             }
@@ -116,7 +112,6 @@ def create_error_log(ErrorID):
             "data": error_log_details.json()
         }
     ), 201
-
 
 #Lowkey not sure if we need this for the AMQP part
 # import pika
