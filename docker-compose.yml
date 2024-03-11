@@ -82,7 +82,7 @@ services:
     volumes:
       - ./marketingcontent/.:/usr/src/app
     ports:
-      - "8000:80"
+      - "5006:80"
     depends_on:
       - marketing-content-db
       - rabbitmq
