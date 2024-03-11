@@ -1,14 +1,17 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
+from os import environ
+
+
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/proj_shipping'
+app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
 class Shipping(db.Model):
-    __tablename__ = 'Shipping'
+    __tablename__ = 'shipping'
 
     ShippingID = db.Column(db.Integer, primary_key=True, autoincrement=True)
     OrderID = db.Column(db.Integer, nullable=False)
@@ -214,6 +217,9 @@ def update_shipping_records(ShippingID):
 #         }
 #     ), 201
 
-
+with app.app_context():
+    db.create_all()
+    print("Database tables created.")
+    
 if __name__ == '__main__':
     app.run(port=5000, debug=True)

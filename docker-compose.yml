@@ -1,6 +1,25 @@
 version: '3.8'
 
 services:
+  shipping:
+    build: ./shipping/.
+    ports:
+      - "5005:5000"
+    environment:
+      - dbURL=mysql+mysqlconnector://root:password@shipping-db:3306/proj_shipping
+    depends_on:
+      - shipping-db
+
+  shipping-db:
+    image: mysql:5.7
+    ports:
+      - "6005:3306"
+    environment:
+      MYSQL_DATABASE: proj_shipping
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - db-data5:/var/lib/mysql
+
   cart:
     build: ./cart/.
     ports:
@@ -19,6 +38,7 @@ services:
       MYSQL_ROOT_PASSWORD: password
     volumes:
       - db-data4:/var/lib/mysql
+
   order:
     build: ./orders/.
     ports:
@@ -112,3 +132,4 @@ volumes:
   db-data:
   db-data2:
   db-data4:
+  db-data5:
