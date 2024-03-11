@@ -15,7 +15,7 @@ class Item(db.Model):
     __tablename__ = 'item'
 
 
-    itemID = db.Column(db.Integer, primary_key=True)
+    itemID = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(64), nullable=False)
     qty = db.Column(db.Integer, nullable=False)
