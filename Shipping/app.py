@@ -99,7 +99,7 @@ def create_shipping_record():
             {
                 "code": 500,
                 "data": {
-                    "OrderID": data.get('OrderID', '')  # Assuming OrderID is part of the request data
+                    "ShippingID": data.get('ShippingID', '')  # Assuming OrderID is part of the request data
                 },
                 "message": "An error occurred creating the shipping details."
             }
