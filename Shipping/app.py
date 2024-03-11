@@ -78,19 +78,6 @@ def create_shipping_record():
     data = request.get_json()
     print(data)
 
-    # Check if a record with the same ShippingID already exists
-    existing_shipping = Shipping.query.filter_by(ShippingID=data.get('ShippingID')).first()
-    if existing_shipping is not None:
-        return jsonify(
-            {
-                "code": 400,
-                "data": {
-                    "ShippingID": data.get('ShippingID')
-                },
-                "message": "A record with the same ShippingID of " +  data.get('ShippingID') + "already exists."
-            }
-        ), 400
-
     data.pop('ShippingID', None)
     shipping_details = Shipping(**data)
 

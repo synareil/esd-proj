@@ -77,20 +77,6 @@ def get_error_log_by_errorID(ErrorID):
 def create_error_log():
     data = request.get_json()
     print(data)
-
-    #check if error log exists
-    existing_error_log = Errors.query.filter_by(ErrorID=data.get('ErrorID')).first()
-    if existing_error_log is not None:
-        return jsonify(
-            {
-                "code": 400,
-                "data": {
-                    "ErrorID": data.get('ErrorID')
-                },
-                "message": "Error record " + data.get('ErrorID') + " already exists."
-            }
-        ), 400
-
     data.pop('ErrorID', None)
     error_log_details = Errors(**data)
 
