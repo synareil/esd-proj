@@ -1,10 +1,10 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from os import environ
 
 
 app = Flask(__name__)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/proj_order'
+app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
@@ -234,9 +234,9 @@ def get_orderitem_by_orderID(orderID):
         }
     ), 404 
 
-
+with app.app_context():
+    db.create_all()
+    print("Database tables created.")
+    
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        print("Database tables created.")
     app.run(port=5000, debug=True)

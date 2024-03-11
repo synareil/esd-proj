@@ -1,10 +1,10 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from os import environ
 
 
 app = Flask(__name__)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/proj_inventory'
+app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
@@ -80,7 +80,7 @@ def get_cart_by_userID(userID):
     ), 404
 
 # update or delete item in cart by userID
-@app.route("cart/<string:orderID>", methods=["PUT"])
+@app.route("/cart/<string:orderID>", methods=["PUT"])
 def update_cart(userID):
     try:
         data = request.get_json()
@@ -121,7 +121,10 @@ def update_cart(userID):
                 "error": str(e)
             }
         ), 500
-
-
+        
+with app.app_context():
+    db.create_all()
+    print("Database tables created.")
+    
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
