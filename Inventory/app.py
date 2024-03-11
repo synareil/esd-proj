@@ -86,27 +86,29 @@ def get_item_by_itemID(itemID):
     ), 404
 
 # create item
-@app.route("/item/<string:itemID>", methods=['POST'])
-def create_item(itemID):
-    if (db.session.scalars(
-      db.select(Item).filter_by(itemID=itemID).
-      limit(1)
-      ).first()
-      ):
-        return jsonify(
-            {
-                "code": 400,
-                "data": {
-                    "itemID": itemID
-                },
-                "message": "Item already exists."
-            }
-        ), 400
+@app.route("/item", methods=['POST'])
+def create_item():
+    # if (db.session.scalars(
+    #   db.select(Item).filter_by(itemID=itemID).
+    #   limit(1)
+    #   ).first()
+    #   ):
+    #     return jsonify(
+    #         {
+    #             "code": 400,
+    #             "data": {
+    #                 "itemID": itemID
+    #             },
+    #             "message": "Item already exists."
+    #         }
+    #     ), 400
 
 
     data = request.get_json()
     print(data)
-    item = Item(itemID, **data)
+    data.pop('itemID', None)
+    itemID = item.itemID
+    item = Item(**data)
 
 
     try:
