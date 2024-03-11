@@ -1,14 +1,17 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
+from os import environ
+
+
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/proj_shipping'
+app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
 class Shipping(db.Model):
-    __tablename__ = 'Shipping'
+    __tablename__ = 'shipping'
 
     ShippingID = db.Column(db.Integer, primary_key=True, autoincrement=True)
     OrderID = db.Column(db.Integer, nullable=False)
@@ -74,19 +77,6 @@ def get_shipping_details_by_OrderID(OrderID):
 def create_shipping_record():
     data = request.get_json()
     print(data)
-
-    # Check if a record with the same ShippingID already exists
-    existing_shipping = Shipping.query.filter_by(ShippingID=data.get('ShippingID')).first()
-    if existing_shipping is not None:
-        return jsonify(
-            {
-                "code": 400,
-                "data": {
-                    "ShippingID": data.get('ShippingID')
-                },
-                "message": "A record with the same ShippingID of " +  data.get('ShippingID') + "already exists."
-            }
-        ), 400
 
     data.pop('ShippingID', None)
     shipping_details = Shipping(**data)
@@ -214,6 +204,9 @@ def update_shipping_records(ShippingID):
 #         }
 #     ), 201
 
-
+with app.app_context():
+    db.create_all()
+    print("Database tables created.")
+    
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
