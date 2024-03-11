@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  fastapi-app:
+    build: .
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - "8000:80"
+    depends_on:
+      - db
+      - rabbitmq
+    environment:
+      DATABASE_URL: postgresql://user:password@db:5432/mydatabase
+      RABBITMQ_USER: user
+      RABBITMQ_PASSWORD: password
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_VHOST: "/"
+    command: uvicorn main:app --host 0.0.0.0 --port 80 --reload
+
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydatabase
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+
+volumes:
+  postgres_data:
