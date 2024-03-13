@@ -167,27 +167,22 @@ def create_order():
     """
     Creates a new order along with associated order items.
     ---
-    consumes:
-      - application/json
-    parameters:
-      - in: body
-        name: order
-        description: The order and items to create.
-        schema:
-          type: object
-          required:
-            - userID
-            - status
-            - items
-          properties:
-            userID:
-              type: integer
-            status:
-              type: string
-            items:
-              type: array
-              items:
-                type: integer
+    requestBody:
+            description: Order details
+            required: true
+            content:
+                application/json:
+                    schema:
+                        properties:
+                            userID:
+                                type: integer
+                                description: descripiton
+                            status:
+                                type: string
+                                description: descripiton                                
+                            items:
+                                type: array
+                                description: descripiton                                
     responses:
         201:
             description: Order created successfully.
@@ -196,6 +191,7 @@ def create_order():
         500:
             description: An error occurred creating the order.
     """
+
     # data = request.get_json()
     # # Check if a record with the same ShippingID already exists
     # existing = Order.query.filter_by(orderID=data.get('orderID')).first()
