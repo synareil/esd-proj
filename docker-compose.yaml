@@ -9,11 +9,16 @@ services:
       - dbURL=mysql+mysqlconnector://root:password@shipping-db:3306/proj_shipping
     depends_on:
       - shipping-db
+    networks:
+      - app_network
+      - shipping_network
 
   shipping-db:
     image: mysql:5.7
     ports:
       - "6005:3306"
+    networks:
+      - shipping_network
     environment:
       MYSQL_DATABASE: proj_shipping
       MYSQL_ROOT_PASSWORD: password
@@ -92,6 +97,8 @@ services:
 
   marketing-content-db:
     image: postgres:13
+    ports:
+      - "6006:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
@@ -126,6 +133,61 @@ services:
       timeout: 5s
       retries: 5
 
+  consul:
+    image: consul:1.15
+    container_name: consul
+    command: agent -dev -ui -client 0.0.0.0
+    networks:
+      app_network:
+        ipv4_address: 172.20.0.2
+    ports:
+      - "8500:8500" # Consul HTTP API
+      - "8600:8600/udp" # Consul DNS
+
+  kong-database:
+    image: postgres:9.6
+    container_name: kong-database
+    environment:
+      POSTGRES_DB: kong
+      POSTGRES_USER: kong
+      POSTGRES_PASSWORD: kong
+    networks:
+      app_network:
+        ipv4_address: 172.20.0.11
+    ports:
+      - "5434:5432"
+    volumes:
+      - kong-database:/var/lib/postgresql/data
+
+  kong:
+    image: kong:latest
+    container_name: kong
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: 172.20.0.11
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kong
+      KONG_CASSANDRA_CONTACT_POINTS: kong-database
+      KONG_PROXY_ACCESS_LOG: "/dev/stdout"
+      KONG_ADMIN_ACCESS_LOG: "/dev/stdout"
+      KONG_PROXY_ERROR_LOG: "/dev/stderr"
+      KONG_ADMIN_ERROR_LOG: "/dev/stderr"
+      KONG_ADMIN_LISTEN: '0.0.0.0:8001, 0.0.0.0:8444 ssl'
+      KONG_DNS_RESOLVER: '172.20.0.2:8600'
+    networks:
+      app_network:
+        ipv4_address: 172.20.0.10
+    ports:
+      - "9000:8000"
+      - "9443:8443"
+      - "9001:8001"
+      - "9444:8444"
+    depends_on:
+      - kong-database
+      - consul
+    links:
+      - kong-database:kong-database
+
 volumes:
   postgres_data:
   rabbitmq_data:
@@ -133,3 +195,21 @@ volumes:
   db-data2:
   db-data4:
   db-data5:
+  kong-database:
+
+networks:
+  app_network:
+    name: app_network
+    ipam:
+      config:
+        - subnet: "172.20.0.0/16"
+  shipping_network:
+    name: shipping_network
+  cart_network:
+    name: cart_network
+  order_network:
+    name: order_network
+  inventory_network:
+    name: inventory_network
+  marketing_network:
+    name: marketing_network

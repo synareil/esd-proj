@@ -29,6 +29,11 @@ class Shipping(db.Model):
         return {"ShippingID": self.ShippingID, "OrderID": self.OrderID, "UserID": self.UserID, 
                 "shippingAddress": self.shippingAddress, "ShippingStatus": self.ShippingStatus}
 
+
+@app.route("/health", methods=["GET"])
+def health_check():
+    return jsonify({"status": "healthy"}), 200
+
 # GET shipping details
 @app.route("/Shipping")
 def get_all():
