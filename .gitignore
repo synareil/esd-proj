@@ -1,6 +1,5 @@
-<<<<<<< Updated upstream
 venv/
-=======
+__pycache__/
 # Environments
 .env
 .venv
@@ -10,4 +9,5 @@ env/
 env.bak/
 venv.bak/
 env_files/
->>>>>>> Stashed changes
+*.pyc
+/MarketingContent/__pycache__
