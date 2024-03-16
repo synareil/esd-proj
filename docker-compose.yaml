@@ -37,6 +37,7 @@ services:
     networks:
       - app_network
       - cart_network
+    restart: always
 
   cart-db:
     image: mysql:5.7
@@ -49,6 +50,7 @@ services:
       - db-data4:/var/lib/mysql
     networks:
       - cart_network
+    restart: always
 
   order:
     build: ./orders/.

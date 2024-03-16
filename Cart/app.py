@@ -28,13 +28,15 @@ class CartItem(db.Model):
 
     cartID = db.Column(db.Integer, primary_key=True)
     itemID = db.Column(db.String(100), nullable=False, primary_key=True)
+    quantity = db.Column(db.Integer)
 
-    def __init__(self, cartID, itemID):
+    def __init__(self, cartID, itemID, quantity):
         self.cartID = cartID
         self.itemID = itemID
+        self.quantity = quantity
 
     def json(self):
-        return {"cartID": self.cartID, "itemID": self.itemID}
+        return {"cartID": self.cartID, "itemID": self.itemID, "quantity": self.quantity}
 
 @app.route("/health", methods=["GET"])
 def health_check():
@@ -45,7 +47,7 @@ def health_check():
 def get_cart():
     cartlist = db.session.scalars(db.select(Cart)).all()
 
-    if len(cartlist):
+    if True:
         return jsonify(
             {
                 "code": 200,
@@ -64,27 +66,31 @@ def get_cart():
 
 #get cart by userID
 @app.route("/cart/<string:userID>")
-def get_cart_by_userID(userID):
+def get_item_in_cart_by_userID(userID):
     cart = db.session.scalars(
     	db.select(Cart).filter_by(userID=userID)
     ).first()
 
-    if cart:
+    if cart == None:   
         return jsonify(
             {
-                "code": 200,
-                "data": cart.json()
+                "code": 404,
+                "message": "Cart not found."
             }
-        )
+        ), 404
+        
+    cart_items = db.session.query(CartItem).filter(CartItem.cartID == cart.cartID).all()
+    cart_items_list = [item.json() for item in cart_items]
     return jsonify(
-        {
-            "code": 404,
-            "message": "Cart not found."
-        }
-    ), 404
+            {
+                "code": 202,
+                "data":cart_items_list
+            }
+        ), 202
+    
 
 # update or delete item in cart by userID
-@app.route("/cart/<string:orderID>", methods=["PUT"])
+@app.route("/cart/<string:userID>", methods=["PUT"])
 def update_cart(userID):
     try:
         data = request.get_json()
@@ -92,12 +98,20 @@ def update_cart(userID):
         # Find the cart for the given userID
         cart = Cart.query.filter_by(userID=userID).first()
         if not cart:
-            return jsonify({"code": 404, "message": "Cart not found."}), 404
+            cart = Cart(None, userID)
+            db.session.add(cart)
+            db.session.flush()
+            db.session.refresh(cart)
+
 
         # Add item to cart if provided in the request
         if 'addItem' in data:
             itemID = data['addItem']
-            cart_item = CartItem(cart.cartID, itemID)
+            if 'quanity' in data:
+                quantity = data['quantity']
+            else:
+                quantity = 1
+            cart_item = CartItem(cart.cartID, itemID, quantity)
             db.session.add(cart_item)
 
         # Delete item from cart if provided in the request

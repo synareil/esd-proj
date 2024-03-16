@@ -53,7 +53,7 @@ class OrderItem(db.Model):
 
 
     def json(self):
-        return {"orderID": self.orderID, "itemID": self.itemID}
+        return {"orderID": self.orderID, "itemID": self.itemID, "quantity": self.quantity}
 
 # get all orders
 @app.route("/order")
@@ -70,7 +70,7 @@ def get_all_orders():
     orderlist = db.session.scalars(db.select(Order)).all()
 
 
-    if true:
+    if True:
         return jsonify(
             {
                 "code": 200,
@@ -218,7 +218,9 @@ def create_order():
     orderID = order.orderID
     
     for item in data["items"]:
-        orderItem_model = OrderItem(orderID, item)
+        itemID = item[0]
+        quantity = item[1]
+        orderItem_model = OrderItem(orderID, itemID, quantity)
         try:
             db.session.add(orderItem_model)
         except:
@@ -306,7 +308,7 @@ def update_order(orderID):
         ), 500
 
 # get order + order items by orderID
-@app.route("/orderitem/<string:orderID>")
+@app.route("/order/orderitem/<string:orderID>")
 def get_orderitem_by_orderID(orderID):
     """
     Retrieves an order and its associated items by orderID.

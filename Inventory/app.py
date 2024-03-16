@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from os import environ
+from sqlalchemy.exc import SQLAlchemyError
 from flasgger import Swagger
 
 app = Flask(__name__)
@@ -53,7 +54,7 @@ def get_all():
     """
     itemlist = db.session.scalars(db.select(Item)).all()
 
-    if len(itemlist):
+    if True:
         return jsonify(
             {
                 "code": 200,
@@ -164,22 +165,17 @@ def create_item():
 
 
     data = request.get_json()
-    print(data)
-    data.pop('itemID', None)
-    itemID = item.itemID
-    item = Item(**data)
+    item = Item(**data, itemID = None)
 
 
     try:
         db.session.add(item)
         db.session.commit()
+        db.session.refresh(item)
     except:
         return jsonify(
             {
                 "code": 500,
-                "data": {
-                    "itemID": itemID
-                },
                 "message": "An error occurred creating the item."
             }
         ), 500
@@ -251,7 +247,10 @@ def update_item(itemID):
             if 'name' in data:
                 item.name = data['name']
             if 'qty' in data:
-                item.qty = data['qty']
+                if int(data['qty']) < 0:
+                    item.qty = item.qty + int(data['qty'])
+                else:
+                    item.qty = data['qty']
             if 'description' in data:
                 item.description = data['description']
             db.session.commit()
@@ -271,6 +270,56 @@ def update_item(itemID):
                 "message": "An error occurred while updating the item. " + str(e) 
             }
         ), 500
+
+# update item by itemID
+@app.route("/item/checkout", methods=['POST'])
+def checkout_items():
+    data = request.get_json()
+    if data:
+        try:
+            for item_checkout in data["checkout"]:
+                itemID = int(item_checkout.get("itemID"))
+                quantity = item_checkout.get("quantity")
+                
+                item = db.session.scalars(
+                db.select(Item).filter(Item.itemID==itemID).
+                limit(1)
+                ).first()
+                if not item:
+                    return jsonify(
+                        {
+                            "code": 404,
+                            "data": {
+                                "itemID": itemID
+                            },
+                            "message": "Item not found."
+                        }
+                    ), 404
+                    
+                item.qty = item.qty - quantity
+                if item.qty < 0:
+                    db.session.rollback()
+                    return jsonify(
+                        {
+                            "code": 422,
+                            "data": {
+                                "itemID": itemID,
+                                "quantity": item.qty + quantity,
+                                "requestedQuantity": quantity
+                            },
+                            "message": "Item out of stock"
+                        }
+                    ), 422
+            db.session.commit()
+            return jsonify(
+                {
+                    "code": 202,
+                }
+            )
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            
+                
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
