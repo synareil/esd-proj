@@ -11,11 +11,14 @@ RABBITMQ_USER = os.getenv("RABBITMQ_USER", "guest")
 RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD", "guest")
 RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
 RABBITMQ_PORT = os.getenv("RABBITMQ_PORT", 5672)
-RABBITMQ_VHOST = os.getenv("RABBITMQ_VHOST", "/")
+RABBITMQ_VHOST = os.getenv("RABBITMQ_VHOST", "/") 
 QUEUE_NAME = "PlaceOrder.error"
 
-CART_BASEURL = "http://localhost:8000/cart"
-INVENTORY_BASEURL = "http://localhost:8000/item"
+KONG_GATEWAY = "http://localhost:8000"
+CART_BASEURL = f"{KONG_GATEWAY}/cart"
+INVENTORY_BASEURL = f"{KONG_GATEWAY}/item"
+ORDER_BASEURL = f"{KONG_GATEWAY}/order"
+
 
 
 app = FastAPI()
@@ -56,18 +59,34 @@ async def checkout_user_cart(user_id: int):
         response.raise_for_status()
         
         items = response.json()["data"]
+        for item in items:
+            del item["cartID"]
+        print(items)
     except HTTPError as http_err:
         raise HTTPException(status_code=404, detail='Cart not found')
     except RequestException as err:
         raise HTTPException(status_code=503, detail='Cart service is not available')
 
     #MINUS OFF THE INVENTORY
+    payload = {"checkout": items}
     try:
-        response2 = requests.post(f"{INVENTORY_BASEURL}/checkout", json=payload)
-        response2.raise_for_status()
+        response = requests.post(f"{INVENTORY_BASEURL}/checkout", json=payload)
+        response.raise_for_status()
     except HTTPError as http_err:
         raise HTTPException(status_code=404, detail='Item not found')
     except RequestException as err:
         raise HTTPException(status_code=503, detail='Cart service is not available')
     
-    
+    #CREATE ORDER
+    payload = {
+        "userID": user_id,
+        "status": "created",
+        "items": items
+        }
+    try:
+        response = requests.post(f"{ORDER_BASEURL}", json=payload)
+        response.raise_for_status()
+    except HTTPError as http_err:
+        raise HTTPException(status_code=404, detail='Internal Server Error')
+    except RequestException as err:
+        raise HTTPException(status_code=503, detail='Cart service is not available')

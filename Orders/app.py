@@ -209,17 +209,16 @@ def create_order():
     #     ), 400
 
     data = request.get_json()
-    print(data)
-    data.pop('orderID', None)
     order = Order(None, userID=data['userID'], status=data['status'])
 
     db.session.add(order)
     db.session.flush()
+    db.session.refresh(order)
     orderID = order.orderID
     
     for item in data["items"]:
-        itemID = item[0]
-        quantity = item[1]
+        itemID = int(item.get("iztemID"))
+        quantity = item.get("quantity")
         orderItem_model = OrderItem(orderID, itemID, quantity)
         try:
             db.session.add(orderItem_model)
