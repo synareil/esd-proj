@@ -8,7 +8,7 @@ from pprint import pprint
 
 # Configure API key authorization: api-key
 configuration = sib_api_v3_sdk.Configuration()
-configuration.api_key['api-key'] = os.getenv("API-KEY")
+configuration.api_key['api-key'] = os.getenv("API_KEY")
 
 def callback(ch, method, properties, body):
     # Process the message

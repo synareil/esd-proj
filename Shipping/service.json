@@ -1,0 +1,14 @@
+{
+    "ID": "shipping",
+    "Name": "shipping",
+    "Tags": [
+      "http"
+    ],
+    "Address": "shipping",
+    "Port": 5000,
+    "Check": {
+      "http": "http://shipping:5000/health",
+      "interval": "10s"
+    }
+  }
+  

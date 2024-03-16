@@ -36,6 +36,10 @@ class CartItem(db.Model):
     def json(self):
         return {"cartID": self.cartID, "itemID": self.itemID}
 
+@app.route("/health", methods=["GET"])
+def health_check():
+    return jsonify({"status": "healthy"}), 200
+
 #get all carts 
 @app.route("/cart")
 def get_cart():

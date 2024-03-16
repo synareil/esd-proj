@@ -1,0 +1,247 @@
+version: '3.8'
+
+services:
+  shipping:
+    build: ./shipping/.
+    ports:
+      - "5005:5000"
+    environment:
+      - dbURL=mysql+mysqlconnector://root:password@shipping-db:3306/proj_shipping
+    depends_on:
+      - shipping-db
+    networks:
+      - app_network
+      - shipping_network
+
+  shipping-db:
+    image: mysql:5.7
+    ports:
+      - "6005:3306"
+    networks:
+      - shipping_network
+    environment:
+      MYSQL_DATABASE: proj_shipping
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - db-data5:/var/lib/mysql
+
+  cart:
+    build: ./cart/.
+    ports:
+      - "5004:5000"
+    environment:
+      - dbURL=mysql+mysqlconnector://root:password@cart-db:3306/proj_cart
+    depends_on:
+      - cart-db
+    networks:
+      - app_network
+      - cart_network
+
+  cart-db:
+    image: mysql:5.7
+    ports:
+      - "6004:3306"
+    environment:
+      MYSQL_DATABASE: proj_cart
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - db-data4:/var/lib/mysql
+    networks:
+      - cart_network
+
+  order:
+    build: ./orders/.
+    ports:
+      - "5002:5000"
+    environment:
+      - dbURL=mysql+mysqlconnector://root:password@order-db:3306/proj_order
+    depends_on:
+      - order-db
+
+  order-db:
+    image: mysql:5.7
+    ports:
+      - "6002:3306"
+    environment:
+      MYSQL_DATABASE: proj_order
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - db-data2:/var/lib/mysql
+
+  inventory:
+    build: ./inventory/.
+    ports:
+      - "5001:5000"
+    environment:
+      - dbURL=mysql+mysqlconnector://root:password@inventory-db:3306/proj_inventory
+    depends_on:
+      - inventory-db
+
+  inventory-db:
+    image: mysql:5.7
+    ports:
+      - "6001:3306"
+    environment:
+      MYSQL_DATABASE: proj_inventory
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - db-data:/var/lib/mysql
+
+  marketing-content:
+    build: ./marketingcontent/.
+    volumes:
+      - ./marketingcontent/.:/usr/src/app
+    ports:
+      - "5006:80"
+    depends_on:
+      - marketing-content-db
+      - rabbitmq
+    env_file:
+      - ./env_files/marketing_content.env
+    command: uvicorn main:app --host 0.0.0.0 --port 80 --reload
+
+  marketing-content-db:
+    image: postgres:13
+    ports:
+      - "6006:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydatabase
+
+  marketing-communication:
+    build: ./marketingcommunication/.
+    ports:
+      - "5003:80"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    env_file:
+      - ./env_files/marketing_communication.env
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+      RABBITMQ_DEFAULT_VHOST: "/"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+
+  # consul:
+  #   image: consul:1.15
+  #   container_name: consul
+  #   command: agent -dev -ui -client 0.0.0.0
+  #   networks:
+  #     app_network:
+  #       ipv4_address: 172.20.0.2
+  #   ports:
+  #     - "8500:8500" # Consul HTTP API
+  #     - "8600:8600/udp" # Consul DNS
+  
+
+  kong-database:
+    image: postgres:15 
+    platform: linux/amd64  # <- required for Mac M1 chip. Otherwise, can remove
+    restart: always
+    networks:
+      - kong_network
+    environment:
+      POSTGRES_DB: kong
+      POSTGRES_USER: kong
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "kong"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - kongdata:/var/lib/postgresql/data
+
+  kong-migration:
+    image: kong/kong-gateway:3.2.2.5 # tested 20231101
+    platform: linux/amd64  # <- required for Mac M1 chip. Otherwise, can remove
+    command: "kong migrations bootstrap"
+    restart: on-failure
+    networks:
+      - kong_network
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: password
+    depends_on:
+      - kong-database
+
+  kong:
+    image: kong/kong-gateway:3.2.2.5 # tested 20231101
+    platform: linux/amd64  # <- required for Mac M1 chip. Otherwise, can remove
+    restart: always
+    networks:
+      - kong_network
+      - app_network
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: password
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_ADMIN_GUI_URL: http://localhost:8002
+    depends_on:
+      - kong-migration
+      # - consul
+    ports: # https://docs.konghq.com/gateway/latest/production/networking/default-ports/
+      - "8000:8000" # Takes incoming HTTP traffic from Consumers, and forwards it to upstream Services.
+      - "8443:8443" # Takes incoming HTTPS traffic from Consumers, and forwards it to upstream Services.
+      - "8001:8001" # Admin API. Listens for calls from the command line over HTTP.
+      - "8444:8444" # Admin API. Listens for calls from the command line over HTTPS.
+      - "8002:8002" # Kong Manager (GUI). Listens for HTTP traffic.
+      - "8445:8445" # Kong Manager (GUI). Listens for HTTPS traffic.
+      - "8003:8003" # Dev Portal. Listens for HTTP traffic, assuming Dev Portal is enabled.
+      - "8446:8446" # Dev Portal. Listens for HTTP traffic, assuming Dev Portal is enabled.
+      - "8004:8004" # Dev Portal /files traffic over HTTPS, assuming the Dev Portal is enabled.
+      - "8447:8447" # Dev Portal /files traffic over HTTPS, assuming the Dev Portal is enabled.
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+  db-data:
+  db-data2:
+  db-data4:
+  db-data5:
+  kongdata:
+
+networks:
+  app_network:
+    name: app_network
+    ipam:
+      config:
+        - subnet: "172.20.0.0/16"
+  kong_network:
+    name: kong_network
+  shipping_network:
+    name: shipping_network
+  cart_network:
+    name: cart_network
+  order_network:
+    name: order_network
+  inventory_network:
+    name: inventory_network
+  marketing_network:
+    name: marketing_network

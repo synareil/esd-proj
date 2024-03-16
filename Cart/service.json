@@ -1,0 +1,14 @@
+{
+    "ID": "cart",
+    "Name": "cart",
+    "Tags": [
+      "http"
+    ],
+    "Address": "cart",
+    "Port": 5000,
+    "Check": {
+      "http": "http://cart:5000/health",
+      "interval": "10s"
+    }
+  }
+  
