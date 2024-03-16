@@ -43,11 +43,13 @@ class OrderItem(db.Model):
 
     orderID = db.Column(db.Integer, primary_key=True)
     itemID = db.Column(db.Integer, primary_key=True)
+    quantity = db.Column(db.Integer)
 
 
-    def __init__(self, orderID, itemID):
+    def __init__(self, orderID, itemID, quantity):
         self.orderID = orderID
         self.itemID = itemID
+        self.quantity = quantity
 
 
     def json(self):
@@ -68,7 +70,7 @@ def get_all_orders():
     orderlist = db.session.scalars(db.select(Order)).all()
 
 
-    if len(orderlist):
+    if true:
         return jsonify(
             {
                 "code": 200,

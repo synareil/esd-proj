@@ -35,7 +35,7 @@ def health_check():
     return jsonify({"status": "healthy"}), 200
 
 # GET ALL shipping details
-@app.route("/shipping/")
+@app.route("/shipping")
 def get_all():
     shipping_details = db.session.scalars(db.select(Shipping)).all()
 

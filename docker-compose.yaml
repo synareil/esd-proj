@@ -12,6 +12,7 @@ services:
     networks:
       - app_network
       - shipping_network
+    restart: always
 
   shipping-db:
     image: mysql:5.7
@@ -55,11 +56,13 @@ services:
       - "5002:5000"
     environment:
       - dbURL=mysql+mysqlconnector://root:password@order-db:3306/proj_order
+      - PYTHONUNBUFFERED=1
     depends_on:
       - order-db
     networks:
       - app_network
       - order_network
+
 
   order-db:
     image: mysql:5.7

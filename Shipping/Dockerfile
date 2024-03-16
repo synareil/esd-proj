@@ -12,10 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app
 
 # Ensure entrypoint.sh is executable
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
 
 EXPOSE 5000
 
-ENTRYPOINT ["/entrypoint.sh"]
 CMD ["flask", "run", "--host=0.0.0.0"]
