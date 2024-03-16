@@ -34,29 +34,22 @@ class Shipping(db.Model):
 def health_check():
     return jsonify({"status": "healthy"}), 200
 
-# GET shipping details
-@app.route("/Shipping")
+# GET ALL shipping details
+@app.route("/shipping/")
 def get_all():
     shipping_details = db.session.scalars(db.select(Shipping)).all()
 
-    if len(shipping_details):
-        return jsonify(
-            {
-                "code": 200,
-                "data": {
-                    "Details": [data.json() for data in shipping_details]
-                }
-            }
-        )
     return jsonify(
         {
-            "code": 404,
-            "message": "There is nothing in shipping_details."
+            "code": 200,
+            "data": {
+                "Details": [data.json() for data in shipping_details]
+            }
         }
-    ), 404
+    )
 
 # get shipping_details by OrderID
-@app.route("/Shipping/<string:OrderID>")
+@app.route("/shipping/<string:OrderID>")
 def get_shipping_details_by_OrderID(OrderID):
     details = db.session.scalars(
     	db.select(Shipping).filter_by(OrderID=OrderID).
@@ -78,7 +71,7 @@ def get_shipping_details_by_OrderID(OrderID):
     ), 404
 
 # create new shipping record
-@app.route("/CreateShipping", methods=['POST'])
+@app.route("/shipping/createshipping", methods=['POST'])
 def create_shipping_record():
     data = request.get_json()
     print(data)
@@ -121,7 +114,7 @@ def update_shipping_records(ShippingID):
                     "data": {
                         "ShippingID": ShippingID
                     },
-                    "message": "Shipping details not found."
+                    "message": "Shipping ID not found."
                 }
             ), 404
 

@@ -96,8 +96,12 @@ async def create_marketing(db: db_dependency, marketingContent_request: Marketin
         "tags": marketingcontent_model.tags,
     }
 
-    send_to_rabbitmq(message)
-
+    try:
+        send_to_rabbitmq(message)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    
     return marketingcontent_model
 
 

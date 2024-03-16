@@ -57,6 +57,9 @@ services:
       - dbURL=mysql+mysqlconnector://root:password@order-db:3306/proj_order
     depends_on:
       - order-db
+    networks:
+      - app_network
+      - order_network
 
   order-db:
     image: mysql:5.7
@@ -67,6 +70,9 @@ services:
       MYSQL_ROOT_PASSWORD: password
     volumes:
       - db-data2:/var/lib/mysql
+          - shipping-db
+    networks:
+      - order_network
 
   inventory:
     build: ./inventory/.
@@ -76,6 +82,9 @@ services:
       - dbURL=mysql+mysqlconnector://root:password@inventory-db:3306/proj_inventory
     depends_on:
       - inventory-db
+    networks:
+      - app_network
+      - inventory_network
 
   inventory-db:
     image: mysql:5.7
@@ -86,8 +95,11 @@ services:
       MYSQL_ROOT_PASSWORD: password
     volumes:
       - db-data:/var/lib/mysql
+    networks:
+      - inventory_network
 
   marketing-content:
+    container_name: marketing-content
     build: ./marketingcontent/.
     volumes:
       - ./marketingcontent/.:/usr/src/app
@@ -96,6 +108,9 @@ services:
     depends_on:
       - marketing-content-db
       - rabbitmq
+    networks:
+      - app_network
+      - marketing_network
     env_file:
       - ./env_files/marketing_content.env
     command: uvicorn main:app --host 0.0.0.0 --port 80 --reload
@@ -110,6 +125,8 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: mydatabase
+    networks:
+      - marketing_network
 
   marketing-communication:
     build: ./marketingcommunication/.
@@ -120,6 +137,8 @@ services:
         condition: service_healthy
     env_file:
       - ./env_files/marketing_communication.env
+    networks:
+      - app_network
 
   rabbitmq:
     image: "rabbitmq:3-management"
@@ -137,6 +156,8 @@ services:
       interval: 20s
       timeout: 5s
       retries: 5
+    networks:
+      - app_network
 
   # consul:
   #   image: consul:1.15
