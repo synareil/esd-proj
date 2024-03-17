@@ -9,5 +9,5 @@ env/
 env.bak/
 venv.bak/
 env_files/
-*.pyc
+.pyc
 /MarketingContent/__pycache__
