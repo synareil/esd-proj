@@ -46,7 +46,7 @@ def get_all():
                 "Details": [data.json() for data in shipping_details]
             }
         }
-    )
+    ), 200
 
 # get shipping_details by OrderID
 @app.route("/shipping/<string:OrderID>")
@@ -62,7 +62,7 @@ def get_shipping_details_by_OrderID(OrderID):
                 "code": 200,
                 "data": details.json()
             }
-        )
+        ), 200
     return jsonify(
         {
             "code": 404,
@@ -131,7 +131,7 @@ def update_shipping_records(ShippingID):
                     "code": 201,
                     "data": shipping_details.json()
                 }
-            ), 200
+            ), 201
         
     except Exception as e:
         return jsonify(
