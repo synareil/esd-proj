@@ -90,7 +90,7 @@
           "description": "This is item #1",
           "qty": 3,
           "price": 100.00,
-          "salesPrice": 0.00,
+          "salesPrice": 10.01,
           "img": "assets/img/littlefuzzyss.jpg"
         },
         {
@@ -135,13 +135,13 @@
           "description": "This is item #4",
           "qty": 3,
           "price": 100.00,
-          "salesPrice": 0.00,
+          "salesPrice": 10.00,
           "img": "assets/img/littlefuzzyss.jpg"
         }
       ]
       for (item of data) {
         console.log(item)
-
+        if (item.salesPrice == 0) {
         var parentE = document.getElementById("carousel");
         var newE = document.createElement("div");
         newE.innerHTML = `
@@ -165,8 +165,36 @@
                         </div>
                           </button>
                         `;
+        parentE.append(newE);
+                        } else {
+                          var parentE = document.getElementById("carousel");
+        var newE = document.createElement("div");
+            var sale = (item.price - item.salesPrice).toFixed(2)
+        newE.innerHTML = `
+                  <button>
+                        <div class="card" style="width: 18rem">
+                            <img
+                              src="${item.img}"
+                              class="card-img-top"
+                              alt="..." height="286" width="286" style="object-fit: cover;"
+                            />
+                            <div class="card-body">
+
+                              <h5 class="card-title">${item.name}</h5>
+                              <p class="card-text">
+                                <div class="price-timestamp-container">
+                                  <s class="text-left">$${item.price.toFixed(2)}</s>
+                                  <span class="text-right" style="color: red;">$${sale}</span>
+                                </div>
+                                
+                              </p>
+                            </div>
+                        </div>
+                          </button>
+                        `;
         //  <span class="text-right">${getDaysAgo(card.timestamp)}</span>
         parentE.append(newE);
+                        }
       }
 
       // Button Script          
@@ -367,16 +395,17 @@
           "description": "This is item #4",
           "qty": 3,
           "price": 100.00,
-          "salesPrice": 0.00,
+          "salesPrice": 10,
           "img": "assets/img/littlefuzzyss.jpg"
         }
       ]
       for (item of data) {
         console.log(item)
 
-        var parentE = document.getElementById("list");
-        var newE = document.createElement("div");
-        newE.innerHTML = `
+        if (item.salesPrice == 0) {
+            var parentE = document.getElementById("list");
+            var newE = document.createElement("div");
+            newE.innerHTML = `
                           <button>
                         <div class="card listcard mx-auto" style="width: 18rem">
                             <img
@@ -389,71 +418,56 @@
                               <h5 class="card-title">${item.name}</h5>
                               <p class="card-text">
                                 <div class="price-timestamp-container">
-                                  <span class="text-left">$${item.price.toFixed(2)}</span>
+                                  <span class="text-left">$${item.price.toFixed(
+                                    2
+                                  )}</span>
                                 </div>
                               </p>
                             </div>
                         </div>
                           </button>
                       `;
-        //  <span class="text-right">${getDaysAgo(card.timestamp)}</span>
-        parentE.append(newE);
-        newE.className = "col-12 col-xxl-3 col-xl-4 col-lg-4 col-md-6";
-      }
-    })
+            //  <span class="text-right">${getDaysAgo(card.timestamp)}</span>
+            parentE.append(newE);
+            newE.className = "col-12 col-xxl-3 col-xl-4 col-lg-4 col-md-6";
+          } else {
+            var parentE = document.getElementById("list");
+            var newE = document.createElement("div");
+            var sale = (item.price - item.salesPrice).toFixed(2)
+            newE.innerHTML = `
+                          <button>
+                        <div class="card listcard mx-auto" style="width: 18rem">
+                            <img
+                              src="${item.img}"
+                              class="card-img-top"
+                              alt="..." height="286" width="286" style="object-fit: cover;"
+                            />
+                            <div class="card-body">
+                
+                              <h5 class="card-title">${item.name}</h5>
+                              <p class="card-text">
+                                <div class="price-timestamp-container">
+                                  <s class="text-left">$${item.price.toFixed(
+                                    2
+                                  )}</s>
+                                  <span class="text-right" style="color: red;">$${sale}</span>
+                                </div>
+                              </p>
+                            </div>
+                        </div>
+                          </button>
+                      `;
+            //  <span class="text-right">${getDaysAgo(card.timestamp)}</span>
+            parentE.append(newE);
+            newE.className = "col-12 col-xxl-3 col-xl-4 col-lg-4 col-md-6";
+          }
+        }
+      });
   </script>
 
   <!-- items -->
   <div class="container">
     <div class="row row-cols-1 row-cols-md-3 g-4" id="list">
-      <!-- <button class="btn">
-        <div class="col">
-          <div class="card h-100">
-            <img src="assets/img/littlefuzzyss.jpg" class="card-img-top" alt="...">
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-              <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional
-                content.</p>
-            </div>
-          </div>
-        </div>
-      </button>
-      <button class="btn">
-        <div class="col">
-          <div class="card h-100">
-            <img src="assets/img/littlefuzzyss.jpg" class="card-img-top" alt="...">
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-              <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional
-                content.</p>
-            </div>
-          </div>
-        </div>
-      </button>
-      <button class="btn">
-        <div class="col">
-          <div class="card h-100">
-            <img src="assets/img/littlefuzzyss.jpg" class="card-img-top" alt="...">
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-              <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional
-                content.</p>
-            </div>
-          </div>
-        </div>
-      </button>
-      <button class="btn">
-        <div class="col">
-          <div class="card h-100">
-            <img src="assets/img/littlefuzzyss.jpg" class="card-img-top" alt="...">
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-              <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional
-                content.</p>
-            </div>
-          </div>
-        </div>
-      </button> -->
     </div>
   </div>
   <!-- Bootstrap -->
