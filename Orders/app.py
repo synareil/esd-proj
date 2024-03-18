@@ -217,7 +217,7 @@ def create_order():
     orderID = order.orderID
     
     for item in data["items"]:
-        itemID = int(item.get("iztemID"))
+        itemID = int(item.get("itemID"))
         quantity = item.get("quantity")
         orderItem_model = OrderItem(orderID, itemID, quantity)
         try:
@@ -237,6 +237,10 @@ def create_order():
     return jsonify(
         {
             "code": 201,
+            "message": "Order created succesfully",
+            "data": {
+                        "orderID": orderID
+                    }
         }
     ), 201
 
