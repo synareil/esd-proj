@@ -1,142 +1,219 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-</head>
+  <body>
+    <!-- navigation bar -->
+    <!-- move the cart and profile to the right and use an icon instead -->
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+      <div class="container">
+        <a class="navbar-brand" href="#"
+          ><img src="assets/img/littlefuzzyss.jpg" width="100"
+        /></a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="index.html"
+                >Items</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="sales.html">Sales</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="#">Cart</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Profile</a>
+            </li>
+          </ul>
+          <form class="d-flex" role="search">
+            <input
+              class="form-control me-2"
+              type="search"
+              placeholder="Search"
+              aria-label="Search"
+            />
+            <button class="btn btn-outline-success" type="submit">
+              Search
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
 
-<body>
-  <!-- navigation bar -->
-  <!-- move the cart and profile to the right and use an icon instead -->
-  <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <!-- item scripts -->
+    <script>
+      document.addEventListener("DOMContentLoaded", (event) => {
+        var data = [
+          {
+            itemID: 1,
+            name: "item4",
+            description: "This is item #4",
+            qty: 3,
+            price: 100.0,
+            salesPrice: 1.0,
+            img: "assets/img/littlefuzzyss.jpg",
+          },
+          {
+            itemID: 4,
+            name: "item4",
+            description: "This is item #4",
+            qty: 3,
+            price: 100.0,
+            salesPrice: 3.0,
+            img: "assets/img/littlefuzzyss.jpg",
+          },
+          {
+            itemID: 4,
+            name: "item4",
+            description: "This is item #4",
+            qty: 3,
+            price: 100.0,
+            salesPrice: 6.0,
+            img: "assets/img/littlefuzzyss.jpg",
+          },
+          {
+            itemID: 4,
+            name: "item4",
+            description: "This is item #4",
+            qty: 3,
+            price: 100.0,
+            salesPrice: 3.0,
+            img: "assets/img/littlefuzzyss.jpg",
+          },
+          {
+            itemID: 4,
+            name: "item4",
+            description: "This is item #4",
+            qty: 3,
+            price: 100.0,
+            salesPrice: 1,
+            img: "assets/img/littlefuzzyss.jpg",
+          },
+          {
+            itemID: 4,
+            name: "item4",
+            description: "This is item #4",
+            qty: 3,
+            price: 100.0,
+            salesPrice: 20,
+            img: "assets/img/littlefuzzyss.jpg",
+          },
+          {
+            itemID: 4,
+            name: "item4",
+            description: "This is item #4",
+            qty: 3,
+            price: 100.0,
+            salesPrice: 10,
+            img: "assets/img/littlefuzzyss.jpg",
+          },
+        ];
+        for (item of data) {
+          console.log(item);
+
+          if (item.salesPrice == 0) {
+            var parentE = document.getElementById("list");
+            var newE = document.createElement("div");
+            newE.innerHTML = `
+                          <button>
+                        <div class="card listcard mx-auto" style="width: 18rem">
+                            <img
+                              src="${item.img}"
+                              class="card-img-top"
+                              alt="..." height="286" width="286" style="object-fit: cover;"
+                            />
+                            <div class="card-body">
+                
+                              <h5 class="card-title">${item.name}</h5>
+                              <p class="card-text">
+                                <div class="price-timestamp-container">
+                                  <span class="text-left">$${item.price.toFixed(
+                                    2
+                                  )}</span>
+                                </div>
+                              </p>
+                            </div>
+                        </div>
+                          </button>
+                      `;
+            //  <span class="text-right">${getDaysAgo(card.timestamp)}</span>
+            parentE.append(newE);
+            newE.className = "col-12 col-xxl-3 col-xl-4 col-lg-4 col-md-6";
+          } else {
+            var parentE = document.getElementById("list");
+            var newE = document.createElement("div");
+            var sale = (item.price - item.salesPrice).toFixed(2)
+            newE.innerHTML = `
+                          <button>
+                        <div class="card listcard mx-auto" style="width: 18rem">
+                            <img
+                              src="${item.img}"
+                              class="card-img-top"
+                              alt="..." height="286" width="286" style="object-fit: cover;"
+                            />
+                            <div class="card-body">
+                
+                              <h5 class="card-title">${item.name}</h5>
+                              <p class="card-text">
+                                <div class="price-timestamp-container">
+                                  <s class="text-left">$${item.price.toFixed(
+                                    2
+                                  )}</s>
+                                  <span class="text-right" style="color: red;">$${sale}</span>
+                                </div>
+                              </p>
+                            </div>
+                        </div>
+                          </button>
+                      `;
+            //  <span class="text-right">${getDaysAgo(card.timestamp)}</span>
+            parentE.append(newE);
+            newE.className = "col-12 col-xxl-3 col-xl-4 col-lg-4 col-md-6";
+          }
+        }
+      });
+    </script>
+
+    <!-- items -->
     <div class="container">
-      <a class="navbar-brand" href="#"><img src="assets/img/littlefuzzyss.jpg" width="100"></a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="index.html">Items</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="sales.html">Sales</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" aria-current="page" href="#">Cart</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Profile</a>
-          </li>
-        </ul>
-        <form class="d-flex" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success" type="submit">Search</button>
-        </form>
-      </div>
+      <div class="row row-cols-1 row-cols-md-3 g-4" id="list"></div>
     </div>
-  </nav>
 
-  <!-- categories -->
-  <!-- add images in the categories something like etsy: 
-      https://www.etsy.com/?zanpid=10690_1708442261_d507439316f091679458a6018eeeb3b8&utm_medium=affiliate&utm_source
-      =affiliate_window&utm_campaign=row_buyer&utm_content=937449&sv1=affiliate&sv_campaign_id=937449&utm_term=0&awc=10690_1708442261_
-      d507439316f091679458a6018eeeb3b8&gad_source=1&gclid=Cj0KCQjwhtWvBhD9ARIsAOP0GoglCxg7aia-xixxOinbYeH_zl_uI_HK5aJICLPg1DfMAT8xaicWb
-      MgaAkZuEALw_wcB -->
-  <div class="container">
-    <br />
-    <div class="row justify-content-center">
-      <div class="col-lg-2 col-md-3 col-sm-3 col-6 text-center">
-        <button onclick="" class="btn btn-outline-secondary">
-          Clothes
-        </button>
-      </div>
-      <div class="col-lg-2 col-md-3 col-sm-3 col-6 text-center">
-        <button onclick="" class="btn btn-outline-secondary">
-          Accessories
-        </button>
-      </div>
-      <div class="col-lg-2 col-md-3 col-sm-3 col-6 text-center">
-        <button onclick="" class="btn btn-outline-secondary">
-          Shoes
-        </button>
-      </div>
-      <div class="col-lg-2 col-md-3 col-sm-3 col-6 text-center">
-        <button onclick="" class="btn btn-outline-secondary">
-          Shoes
-        </button>
-      </div>
-      <div class="col-lg-2 col-md-3 col-sm-3 col-6 text-center">
-        <button onclick="" class="btn btn-outline-secondary">
-          Shoes
-        </button>
-      </div>
-    </div>
-  </div>
-  <br>
+    <!-- Bootstrap -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
 
-  <!-- items -->
-  <div class="container">
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-      <button class="btn">
-        <div class="col">
-          <div class="card h-100">
-            <img src="assets/img/littlefuzzyss.jpg" class="card-img-top" alt="...">
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-              <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional
-                content.</p>
-            </div>
-          </div>
-        </div>
-      </button>
-      <button class="btn">
-        <div class="col">
-          <div class="card h-100">
-            <img src="assets/img/littlefuzzyss.jpg" class="card-img-top" alt="...">
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-              <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional
-                content.</p>
-            </div>
-          </div>
-        </div>
-      </button>
-      <button class="btn">
-        <div class="col">
-          <div class="card h-100">
-            <img src="assets/img/littlefuzzyss.jpg" class="card-img-top" alt="...">
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-              <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional
-                content.</p>
-            </div>
-          </div>
-        </div>
-      </button>
-      <button class="btn">
-        <div class="col">
-          <div class="card h-100">
-            <img src="assets/img/littlefuzzyss.jpg" class="card-img-top" alt="...">
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-              <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional
-                content.</p>
-            </div>
-          </div>
-        </div>
-      </button>
-    </div>
-  </div>
-  <!-- Bootstrap -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-    crossorigin="anonymous"></script>
-</body>
-
+    <style>
+      button {
+        background-color: transparent;
+        border: 1px solid rgba(255, 0, 0, 0);
+      }
+    </style>
+  </body>
 </html>
