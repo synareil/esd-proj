@@ -1,6 +1,25 @@
 version: '3.8'
 
 services:
+  placeorder:
+    container_name: placeorder
+    build: ./placeorder/.
+    volumes:
+      - ./placeorder/.:/usr/src/app
+    ports:
+      - "5011:80"
+    depends_on:
+      - order
+      - cart
+      - inventory
+      - shipping
+      - rabbitmq
+    networks:
+      - app_network
+    env_file:
+      - ./env_files/marketing_content.env
+    command: uvicorn main:app --host 0.0.0.0 --port 80 --reload
+
   shipping:
     build: ./shipping/.
     ports:
