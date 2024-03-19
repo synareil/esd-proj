@@ -1,6 +1,17 @@
 version: '3.8'
 
 services:
+  error-log:
+    build: ./errorlog2/.
+    restart: on-failure
+    volumes:
+      - .:/app
+      - error_log_data:/app/db
+    ports:
+      - "5007:8000"
+    networks:
+      - app_network
+
   placeorder:
     container_name: placeorder
     build: ./placeorder/.
@@ -271,6 +282,7 @@ volumes:
   db-data4:
   db-data5:
   kongdata:
+  error_log_data:
 
 networks:
   app_network:
