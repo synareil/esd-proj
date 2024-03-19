@@ -140,4 +140,4 @@ async def orchestrate_microservices(checkoutRequest: CheckoutRequest):
     if shipping_response.status_code != 201:
         rollback_inventory(payload)
         rollback_order()
-        raise HTTPException(status_code=cart_response.status_code, detail=shipping_response.text)
+        raise HTTPException(status_code=cart_response.status_code, detail="Shipping service failed")
