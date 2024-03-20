@@ -9,20 +9,40 @@ import httpx
 import asyncio
 import async_timeout
 
-RABBITMQ_USER = os.getenv("RABBITMQ_USER", "guest")
-RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD", "guest")
-RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
+RABBITMQ_USER = os.getenv("RABBITMQ_USER", "user")
+RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD", "password")
+RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "rabbitmq")
 RABBITMQ_PORT = os.getenv("RABBITMQ_PORT", 5672)
 RABBITMQ_VHOST = os.getenv("RABBITMQ_VHOST", "/") 
 QUEUE_NAME = "PlaceOrder.error"
 
-KONG_GATEWAY = "http://localhost:8000"
+import pika
+credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
+parameters = pika.ConnectionParameters(host=RABBITMQ_HOST,
+                                        port=RABBITMQ_PORT,
+                                        virtual_host=RABBITMQ_VHOST,
+                                        credentials=credentials)
+connection = pika.BlockingConnection(parameters)
+channel = connection.channel()
+
+# Declare a topic exchange
+exchange_name = 'topic_logs'
+channel.exchange_declare(exchange=exchange_name, exchange_type='topic')
+
+# Declare the consumer's queue
+queue_name = 'error_logs'
+channel.queue_declare(queue=queue_name, durable=True)
+
+# Bind the queue to the exchange with a pattern that matches any '.error' routing key
+binding_key = '*.error'
+channel.queue_bind(exchange=exchange_name, queue=queue_name, routing_key=binding_key)
+connection.close()
+
+KONG_GATEWAY = "http://kong:8000"
 CART_BASEURL = f"{KONG_GATEWAY}/cart"
 INVENTORY_BASEURL = f"{KONG_GATEWAY}/item"
 ORDER_BASEURL = f"{KONG_GATEWAY}/order"
 SHIPPING_BASEURL  = f"{KONG_GATEWAY}/shipping"
-
-
 
 app = FastAPI()
 
@@ -48,12 +68,13 @@ def send_to_rabbitmq(message: dict):
     connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
     
-    queue_name = QUEUE_NAME
-    channel.queue_declare(queue=queue_name, durable=True)
+    exchange_name = 'topic_logs'
+    channel.exchange_declare(exchange=exchange_name, exchange_type='topic')
 
-    # Publish message
-    channel.basic_publish(exchange='',
-                          routing_key=queue_name,
+    routing_key = 'PlaceOrder.error'
+    
+    channel.basic_publish(exchange=exchange_name, 
+                          routing_key=routing_key, 
                           body=json.dumps(message),
                           properties=pika.BasicProperties(
                               delivery_mode=2,  # make message persistent
@@ -87,7 +108,7 @@ async def call_service_with_retry(method: str, url: str, retries: int = 3, backo
 async def check_health():
     return None
 
-@app.post("/checkout2", status_code=status.HTTP_200_OK)
+@app.post("/checkout", status_code=status.HTTP_200_OK)
 async def orchestrate_microservices(checkoutRequest: CheckoutRequest):
     user_id = checkoutRequest.user_id
     shippingAddress = checkoutRequest.shippingAddress
@@ -99,6 +120,8 @@ async def orchestrate_microservices(checkoutRequest: CheckoutRequest):
     cart_response = await call_service_with_retry(method='GET', url=url, headers=headers)
     
     if cart_response.status_code != 202:
+        message = {'message':"Cart service failed" + cart_response.text, 'source':"PlaceOrder"}
+        send_to_rabbitmq(message)
         raise HTTPException(status_code=cart_response.status_code, detail="Cart service failed")
     
     # Call the inventory microservice

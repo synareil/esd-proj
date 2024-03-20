@@ -13,18 +13,17 @@ def insert_error_log(message, source):
         db_session.close()
 
 def on_message(channel, method_frame, header_frame, body):
-    message = json.loads(body)
-    
-    message_text = message.get('message')
-    source = message.get('source')
-    sys.stdout.write(message_text)
+    message = json.loads(body) 
+    message_text = message['message']
+    source = message['source']
+
     insert_error_log(message_text, source)
     channel.basic_ack(delivery_tag=method_frame.delivery_tag)
 
 def start_consuming():
     RABBITMQ_USER = os.getenv("RABBITMQ_USER", "user")
     RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD", "password")
-    RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
+    RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "rabbitmq")
     RABBITMQ_PORT = os.getenv("RABBITMQ_PORT", "5672")
     RABBITMQ_VHOST = os.getenv("RABBITMQ_VHOST", "/")
     
@@ -37,13 +36,12 @@ def start_consuming():
     connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
 
-    channel.queue_declare(queue=queue_name, durable=True)
-
     channel.basic_qos(prefetch_count=1)
     channel.basic_consume(queue=queue_name, on_message_callback=on_message)
 
     sys.stdout.write('Waiting for messages. To exit press CTRL+C\n')
     channel.start_consuming()
+        
 
 if __name__ == "__main__":
     start_consuming()
