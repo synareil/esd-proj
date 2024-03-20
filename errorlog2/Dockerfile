@@ -22,4 +22,4 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 EXPOSE 8000
 
 # Run supervisord
-CMD ["/usr/bin/supervisord"]
+CMD ["python", "consumer.py"]
