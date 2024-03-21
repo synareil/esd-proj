@@ -3,8 +3,9 @@ from sqlalchemy import create_engine, Column, Integer, String, DateTime, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import datetime
+import os
 
-DATABASE_URL = "sqlite:////app/db/test.db"
+DATABASE_URL = os.getenv("ERROR_DATABASE_URL", "sqlite:///test.db")
 Base = declarative_base()
 
 class ErrorLog(Base):

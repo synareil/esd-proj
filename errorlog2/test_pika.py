@@ -12,7 +12,7 @@ channel = connection.channel()
 channel.queue_declare(queue='error_logs', durable=True)
 
 # Your error message
-error_message = {'source': "Wakwaw", 'message':"ohno"}
+error_message = {'source': "Wakwawwwws", 'message':"ohno"}
 body=json.dumps(error_message)
 
 # Publish the message to the queue
