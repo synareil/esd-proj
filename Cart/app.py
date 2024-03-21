@@ -15,13 +15,15 @@ class Cart(db.Model):
 
     cartID = db.Column(db.Integer, primary_key=True)
     userID = db.Column(db.String(100), nullable=False)
+    active = db.Column(db.Boolean, nullable=False)
 
-    def __init__(self, cartID, userID):
+    def __init__(self, cartID, userID, active):
         self.cartID = cartID
         self.userID = userID
+        self.active = active
 
     def json(self):
-        return {"cartID": self.cartID, "userID": self.userID}
+        return {"cartID": self.cartID, "userID": self.userID, "active": self.active}
 
 class CartItem(db.Model):
     __tablename__ = 'cartItem'
@@ -56,20 +58,12 @@ def get_cart():
                 }
             }
         )
-    return jsonify(
-        {
-            "code": 404,
-            "message": "There is nothing in the cart."
-        }
-    ), 404
 
 
 #get cart by userID
 @app.route("/cart/<string:userID>")
 def get_item_in_cart_by_userID(userID):
-    cart = db.session.scalars(
-    	db.select(Cart).filter_by(userID=userID)
-    ).first()
+    cart = db.session.query(Cart).filter(Cart.userID == userID).filter(Cart.active == True).first()
 
     if cart == None:   
         return jsonify(
@@ -88,6 +82,26 @@ def get_item_in_cart_by_userID(userID):
             }
         ), 202
     
+#get cart by itemID
+@app.route("/cart/item/<string:itemID>")
+def get_users_with_itemID_in_active_cart(itemID):
+    carts = db.session.query(CartItem).filter(CartItem.itemID == itemID).all()
+
+    users_return = []
+    for cart in carts:
+        cartID = cart.cartID
+        userID = db.session.query(Cart).filter(Cart.cartID == cartID).filter(Cart.active == True).first()
+        if userID != None:
+            users_return.append(userID.userID)
+        
+        
+    return jsonify(
+            {
+                "code": 202,
+                "data": users_return
+            }
+        ), 202
+    
 
 # update or delete item in cart by userID
 @app.route("/cart/<string:userID>", methods=["PUT"])
@@ -96,9 +110,9 @@ def update_cart(userID):
         data = request.get_json()
 
         # Find the cart for the given userID
-        cart = Cart.query.filter_by(userID=userID).first()
+        cart = Cart.query.filter_by(userID=userID).filter_by(active=True).first()
         if not cart:
-            cart = Cart(None, userID)
+            cart = Cart(None, userID, active=True)
             db.session.add(cart)
             db.session.flush()
             db.session.refresh(cart)
@@ -106,20 +120,28 @@ def update_cart(userID):
 
         # Add item to cart if provided in the request
         if 'addItem' in data:
-            itemID = data['addItem']
-            if 'quanity' in data:
-                quantity = data['quantity']
-            else:
-                quantity = 1
-            cart_item = CartItem(cart.cartID, itemID, quantity)
-            db.session.add(cart_item)
+            for item in data['addItem']:
+                itemID = item["itemID"]
+                quantity = item["quantity"]
+                cartItem = db.session.query(CartItem).filter(CartItem.cartID ==  cart.cartID).filter(CartItem.itemID == itemID).first()
+                
+                if cartItem:
+                    cartItem.quantity += quantity
+                else:
+                    cart_item = CartItem(cart.cartID, itemID, quantity)
+                    db.session.add(cart_item)
 
         # Delete item from cart if provided in the request
         if 'deleteItem' in data:
-            itemID = data['deleteItem']
-            cart_item = CartItem.query.filter_by(cartID=cart.cartID, itemID=itemID).first()
-            if cart_item:
-                db.session.delete(cart_item)
+            for item in data['deleteItem']:
+                itemID = item["itemID"]
+                quantity = item["quantity"]
+                cart_item = CartItem.query.filter_by(cartID=cart.cartID, itemID=itemID).first()
+                if cart_item.quantity - quantity <= 0:
+                    db.session.delete(cart_item)
+                else:
+                    cart_item.quantity -= quantity
+
 
         # Commit changes to the database
         db.session.commit()
