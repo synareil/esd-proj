@@ -133,7 +133,7 @@ async def orchestrate_microservices(checkoutRequest: CheckoutRequest):
     inventory_response = await call_service_with_retry(method = "POST", url=url, json=payload)
     
     if inventory_response.status_code != 200:
-        raise HTTPException(status_code=cart_response.status_code, detail="Inventory service failed")
+        raise HTTPException(status_code=inventory_response.status_code, detail="Inventory service failed")
     
     
     # Call the order microservice
