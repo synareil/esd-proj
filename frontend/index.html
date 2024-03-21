@@ -56,7 +56,15 @@
       const response = await fetch('./nav.html');
       const data = await response.text();
       document.getElementById('nav-placeholder').innerHTML = data;
-      console.log(document.getElementById('nav-placeholder').innerHTML);
+
+      // Get the filename of the current page
+      const page = window.location.pathname.split("/").pop().split(".")[0];
+
+      // Get the nav link element that corresponds to the current page
+      const link = document.getElementById(page);
+
+      // Add the 'active' class to the nav link
+      if (link) link.classList.add("active");
     })();
     
     document.addEventListener("DOMContentLoaded", (event) => {
