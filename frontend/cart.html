@@ -33,39 +33,7 @@
     </style>
 </head>
 <body>
-      <!-- navigation bar -->
-  <!-- move the cart and profile to the right and use an icon instead -->
-  <nav class="navbar navbar-expand-lg bg-body-tertiary">
-    <div class="container">
-      <a class="navbar-brand" href="index.html"><img src="assets/img/littlefuzzyss.jpg" width="100"></a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link" aria-current="page" href="#/">Items</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="sales.html">Sales</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#/cart">Cart</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#/orders">Orders</a>
-          </li>
-        </ul>
-        <form class="d-flex" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success" type="submit">Search</button>
-        </form>
-      </div>
-    </div>
-  </nav>
-  <!-- end of navigation bar -->
-
+  <div id="nav-placeholder"></div>
   <div class="container mt-5">
     <div class="row">
       <div class="col-lg-8">
@@ -195,8 +163,8 @@
     </div>
   </div>
 
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script>
-
     //for buttons
     function decrementQuantity(id) {
       var quantity = document.getElementById("quantity-"+id).innerText;
@@ -212,11 +180,22 @@
       document.getElementById('quantity-'+id).innerText = quantity;
     }
 
+    //for navigation bar
+    
+    (async function() {
+      const response = await fetch('./nav.html');
+      const data = await response.text();
+      document.getElementById('nav-placeholder').innerHTML = data;
+      console.log(document.getElementById('nav-placeholder').innerHTML);
+    })();
+    
   </script>
-      <script src="Router.js"></script>
-      <!-- Bootstrap -->
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-      crossorigin="anonymous"></script>
+
+  <script src="Router.js"></script>
+  
+  <!-- Bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+  crossorigin="anonymous"></script>
 </body>
 </html>
