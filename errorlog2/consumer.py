@@ -23,7 +23,7 @@ def on_message(channel, method_frame, header_frame, body):
 def start_consuming():
     RABBITMQ_USER = os.getenv("RABBITMQ_USER", "user")
     RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD", "password")
-    RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "rabbitmq")
+    RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
     RABBITMQ_PORT = os.getenv("RABBITMQ_PORT", "5672")
     RABBITMQ_VHOST = os.getenv("RABBITMQ_VHOST", "/")
     
@@ -41,7 +41,7 @@ def start_consuming():
 
     sys.stdout.write('Waiting for messages. To exit press CTRL+C\n')
     channel.start_consuming()
-        
-
+    
 if __name__ == "__main__":
     start_consuming()
+        
