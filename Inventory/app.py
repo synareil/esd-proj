@@ -108,6 +108,7 @@ def get_item_by_itemID(itemID):
         }
     ), 404
 
+
 # create item
 @app.route("/item", methods=['POST'])
 def create_item():
@@ -251,8 +252,11 @@ def update_item(itemID):
                     item.qty = item.qty + int(data['qty'])
                 else:
                     item.qty = data['qty']
+            if 'salesPrice' in data:
+                item.salesPrice = data['salesPrice']
             if 'description' in data:
                 item.description = data['description']
+                
             db.session.commit()
             return jsonify(
                 {
@@ -297,6 +301,54 @@ def checkout_items():
                     ), 404
                     
                 item.qty = item.qty - quantity
+                if item.qty < 0:
+                    db.session.rollback()
+                    return jsonify(
+                        {
+                            "code": 422,
+                            "data": {
+                                "itemID": itemID,
+                                "quantity": item.qty + quantity,
+                                "requestedQuantity": quantity
+                            },
+                            "message": "Item out of stock"
+                        }
+                    ), 422
+            db.session.commit()
+            return jsonify(
+                {
+                    "code": 202,
+                }
+            )
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            
+# rollback for checkout
+@app.route("/item/checkout/rollback", methods=['POST'])
+def rollback_checkout_items():
+    data = request.get_json()
+    if data:
+        try:
+            for item_checkout in data["checkout"]:
+                itemID = int(item_checkout.get("itemID"))
+                quantity = item_checkout.get("quantity")
+                
+                item = db.session.scalars(
+                db.select(Item).filter(Item.itemID==itemID).
+                limit(1)
+                ).first()
+                if not item:
+                    return jsonify(
+                        {
+                            "code": 404,
+                            "data": {
+                                "itemID": itemID
+                            },
+                            "message": "Item not found."
+                        }
+                    ), 404
+                    
+                item.qty = item.qty + quantity
                 if item.qty < 0:
                     db.session.rollback()
                     return jsonify(
