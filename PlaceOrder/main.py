@@ -50,14 +50,32 @@ class CheckoutRequest(BaseModel):
     user_id: int
     shippingAddress: str = Field(min_length=3)
 
+class CustomResponse:
+    def __init__(self, status_code, text):
+        self.status_code = status_code
+        self.text = text
+        
 def generate_idempotency_key(user_id: str) -> str:
     return f"{user_id}-{int(time() * 1000)}"
 
-def rollback_inventory(payload):
-    pass
+async def rollback_inventory(items):
+    payload = {"checkout": items}
+    url = f"{INVENTORY_BASEURL}/checkout/rollback"
+    inventory_response = await call_service_with_retry(method = "POST", url=url, json=payload)
+    print("Rollbacking inventory ...")
+    
+    if inventory_response.status_code != 200:
+        message = {'message':"Rollbacking Inventory service failed" + inventory_response.text, 'source':"PlaceOrder"}
+        send_to_rabbitmq(message)
 
-def rollback_order():
-    pass
+async def rollback_order(orderID):
+    url = f"{ORDER_BASEURL}/{orderID}"
+    order_response = await call_service_with_retry(method = "DELETE", url=url)
+    print("Rollbacking order ...")
+    
+    if order_response.status_code != 200:
+        message = {'message':"Rollbacking order service failed" + order_response.text, 'source':"PlaceOrder"}
+        send_to_rabbitmq(message)
 
 def send_to_rabbitmq(message: dict):
     credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
@@ -98,11 +116,14 @@ async def call_service_with_retry(method: str, url: str, retries: int = 3, backo
                 response = await client.request(method, url, **kwargs)
                 response.raise_for_status()
                 return response
-            except httpx.HTTPStatusError as e:
+            except (httpx.RequestError, httpx.HTTPStatusError, httpx.TimeoutException) as e:
                 print(f"Request failed: {e}. Retrying in {delay} seconds.")
                 await asyncio.sleep(delay)
-        # Final attempt without catching the exception
-        return await client.request(method, url, **kwargs)
+                
+        try:
+            return await client.request(method, url, **kwargs)
+        except (httpx.RequestError):
+            return CustomResponse(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, text="Unable to reach the microservice")
 
 @app.get("/health", status_code=status.HTTP_200_OK)
 async def check_health():
@@ -120,7 +141,7 @@ async def orchestrate_microservices(checkoutRequest: CheckoutRequest):
     cart_response = await call_service_with_retry(method='GET', url=url, headers=headers)
     
     if cart_response.status_code != 202:
-        message = {'message':"Cart service failed" + cart_response.text, 'source':"PlaceOrder"}
+        message = {'message':"Cart service failed. " + cart_response.text, 'source':"PlaceOrder"}
         send_to_rabbitmq(message)
         raise HTTPException(status_code=cart_response.status_code, detail="Cart service failed")
     
@@ -133,6 +154,8 @@ async def orchestrate_microservices(checkoutRequest: CheckoutRequest):
     inventory_response = await call_service_with_retry(method = "POST", url=url, json=payload)
     
     if inventory_response.status_code != 200:
+        message = {'message':"Inventory service failed. " + inventory_response.text, 'source':"PlaceOrder"}
+        send_to_rabbitmq(message)
         raise HTTPException(status_code=inventory_response.status_code, detail="Inventory service failed")
     
     
@@ -146,8 +169,10 @@ async def orchestrate_microservices(checkoutRequest: CheckoutRequest):
     order_response = await call_service_with_retry(method = "POST", url=url, json=payload)
     
     if order_response.status_code != 201:
-        rollback_inventory(payload)
-        raise HTTPException(status_code=cart_response.status_code, detail="Order service failed")
+        message = {'message':"Order service failed. " + order_response.text, 'source':"PlaceOrder"}
+        send_to_rabbitmq(message)
+        await rollback_inventory(items)
+        raise HTTPException(status_code=order_response.status_code, detail="Order service failed")
 
     # Call the shipping microservice
     orderID = order_response.json()["data"]["orderID"]
@@ -161,6 +186,8 @@ async def orchestrate_microservices(checkoutRequest: CheckoutRequest):
     shipping_response = await call_service_with_retry(method = "POST", url=url, json=payload)
     
     if shipping_response.status_code != 201:
-        rollback_inventory(payload)
-        rollback_order()
-        raise HTTPException(status_code=cart_response.status_code, detail="Shipping service failed")
+        message = {'message':"Shipping service failed. " + shipping_response.text, 'source':"PlaceOrder"}
+        send_to_rabbitmq(message)
+        await rollback_inventory(items)
+        await rollback_order(orderID)
+        raise HTTPException(status_code=shipping_response.status_code, detail="Shipping service failed")

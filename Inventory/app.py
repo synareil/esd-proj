@@ -330,8 +330,8 @@ def rollback_checkout_items():
     if data:
         try:
             for item_checkout in data["checkout"]:
-                itemID = int(item_checkout.get("itemID"))
-                quantity = item_checkout.get("quantity")
+                itemID = int(item_checkout["itemID"])
+                quantity = item_checkout["quantity"]
                 
                 item = db.session.scalars(
                 db.select(Item).filter(Item.itemID==itemID).

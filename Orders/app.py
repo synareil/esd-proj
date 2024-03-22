@@ -124,6 +124,45 @@ def get_order_by_orderID(orderID):
         }
     ), 404
 
+# delete order by orderID
+@app.route("/order/<string:orderID>", methods=["DELETE"])
+def delete_order_by_orderID(orderID):
+    """
+    Delete a single order by orderID.
+    ---
+    parameters:
+      - name: orderID
+        in: path
+        type: string
+        required: true
+        description: The ID of the order to retrieve.
+    responses:
+        200:
+            description: Details of an order.
+        404:
+            description: Order not found.
+    """
+    order = db.session.scalars(
+    	db.select(Order).filter_by(orderID=orderID).
+    	limit(1)
+    ).first()
+
+
+    if order:
+        db.session.delete(order)
+        db.session.commit()
+        return jsonify(
+            {
+                "code": 204,
+            }
+        ), 204
+    return jsonify(
+        {
+            "code": 404,
+            "message": "Order not found."
+        }
+    ), 404
+    
 # get order by status
 @app.route("/order/status/<string:status>")
 def get_order_by_status(status):
