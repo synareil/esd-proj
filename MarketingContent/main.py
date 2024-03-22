@@ -2,11 +2,11 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 import models
 from database import SessionLocal, engine
-from typing import Annotated
+from typing import Annotated, List, Dict
 from pydantic import BaseModel, Field
 from starlette import status
 from datetime import datetime
-from models import MarketingContent
+from models import MarketingContent, User
 import pika, json
 import os
 
@@ -53,62 +53,55 @@ def send_to_rabbitmq(message: dict):
     connection.close()
 
 class Item(BaseModel):
-    title: str
-    desc: str
-    price: float
+    name: str
+    price: str
     image: str
-
-class NewItemMarketingRequest(BaseModel):
+    oldPrice: str
+    
+class UserRequest(BaseModel):
+    name: str
+    email: str
+    
+class NewSalesRequest(BaseModel):
     title: str
-    desc: str
-    item1: Item
-    item2: Item
-    item3: Item
-
-
-class MarketingContentRequest(BaseModel):
-    title: str = Field(min_length=3)
-    content_type: str = Field(min_length=3)
-    content_body: str = Field(min_length=3)
-    tags: str = Field(min_length=3, default=None)
-
+    items: Dict
+    userItem: Dict
 
 @app.get("/", status_code=status.HTTP_200_OK)
 async def read_all(db: db_dependency):
     return db.query(MarketingContent).all()
 
-@app.post("/marketingcontent", status_code=status.HTTP_201_CREATED)
-async def create_marketing(db: db_dependency, marketingContent_request: MarketingContentRequest):
-    marketingcontent_model = MarketingContent(**marketingContent_request.model_dump())
-
+@app.post("/marketingcontent/newsales", status_code=status.HTTP_201_CREATED)
+async def create_marketing(newSales_request: NewSalesRequest, db: db_dependency):
+    userItem = newSales_request.userItem
+    
+    marketingcontent_model = MarketingContent(title = newSales_request.title, content_type="Item Sales Email")
     db.add(marketingcontent_model)
     db.commit()
-    db.refresh(marketingcontent_model)
-
-    message = {
-        # Assuming these are the fields you want to send
-        "id": marketingcontent_model.id,
-        "title": marketingcontent_model.title,
-        "content_type": marketingcontent_model.content_type,
-        "content_body": marketingcontent_model.content_body,
-        "status": marketingcontent_model.status,
-        "created_at": marketingcontent_model.created_at.isoformat(),
-        "tags": marketingcontent_model.tags,
-    }
-
-    try:
-        send_to_rabbitmq(message)
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
     
-    return marketingcontent_model
+    for userID, itemIDs in userItem.items():
+        user_model = db.query(User).filter(User.id == userID).first()
+        items = newSales_request.items
+        
+        if user_model:
+            email = user_model.email
+            name = user_model.name
+            
+            items_return = []
+            for itemID in itemIDs:
+                items_return.append(items[str(itemID)])
+            message ={"to":{"email":email, 
+                            "name":name},
+                      "templateId":4,
+                      "params":{"items": items_return}}
+            print(message)
+            send_to_rabbitmq(message)
 
-
-@app.post("/marketingcontent/newitem", status_code=status.HTTP_201_CREATED)
-async def create_marketing(newItem_request: NewItemMarketingRequest):
-    message = newItem_request.model_dump()
-
-    send_to_rabbitmq(message)
-
-    return newItem_request
+@app.post("/marketingcontent/user", status_code=status.HTTP_201_CREATED)
+async def create_user(user_request: UserRequest, db: db_dependency):
+    user_model = User(**user_request.model_dump())
+    db.add(user_model)
+    db.commit()
+    db.refresh(user_model)
+    
+    return user_model

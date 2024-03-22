@@ -8,7 +8,11 @@ class MarketingContent(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String)  
     content_type = Column(String)
-    content_body = Column(Text)  
-    status = Column(String)
     created_at = Column(DateTime, default=datetime.utcnow)  
-    tags = Column(String)
+    
+class User(Base):
+    __tablename__ = 'user'
+    
+    id = Column(Integer, primary_key=True)
+    email = Column(String) 
+    name = Column(String) 

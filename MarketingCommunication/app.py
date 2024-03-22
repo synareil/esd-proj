@@ -16,10 +16,10 @@ def callback(ch, method, properties, body):
     sys.stdout.write(f"Received message: {message}\n")
     
     api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
-    to = [{"email":"julian.maximal@gmail.com","name":"Julian Willis"}]
+    to = [message['to']]
     headers = {"Some-Custom-Name":"unique-id-1234"}
-    template_id = 3
-    params = message
+    template_id = message['templateId']
+    params = message['params']
     headers={"X-Mailin-custom": "custom_header_1:custom_value_1|custom_header_2:custom_value_2|custom_header_3:custom_value_3", "charset": "iso-8859-1"}
     send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(to=to, headers=headers, template_id=template_id,params=params)
     
