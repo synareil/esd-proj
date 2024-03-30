@@ -37,7 +37,7 @@ class Item(db.Model):
 
 
     def json(self):
-        return {"itemID": self.itemID, "name": self.name, "description": self.description, "qty": self.qty, "category": self.category, "price": self.price, "salesPrice": self.salesPrice}
+        return {"itemID": self.itemID, "name": self.name, "description": self.description, "qty": self.qty, "category": self.category, "price": self.price, "salesPrice": self.salesPrice, "image":self.image}
 
 with app.app_context():
     db.create_all()
@@ -324,7 +324,21 @@ def checkout_items():
             )
         except SQLAlchemyError as e:
             db.session.rollback()
-            
+ 
+#search
+@app.route('/item/search')
+def search():
+    query = request.args.get('q')
+    if query:
+        items = Item.query.filter(
+            (Item.name.like(f'%{query}%')) | 
+            (Item.description.like(f'%{query}%')) | 
+            (Item.category.like(f'%{query}%'))
+        ).all()
+        return jsonify([item.json() for item in items])
+    else:
+        return jsonify([]), 400
+               
 # rollback for checkout
 @app.route("/item/checkout/rollback", methods=['POST'])
 def rollback_checkout_items():

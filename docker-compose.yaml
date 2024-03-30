@@ -299,9 +299,6 @@ volumes:
 networks:
   app_network:
     name: app_network
-    ipam:
-      config:
-        - subnet: "172.20.0.0/16"
   kong_network:
     name: kong_network
   shipping_network:
