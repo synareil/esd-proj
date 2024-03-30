@@ -21,10 +21,11 @@ class Item(db.Model):
     qty = db.Column(db.Integer, nullable=False)
     category = db.Column(db.String(64), nullable=False)
     price = db.Column(db.Float(precision=2), nullable=False)
-    salesPrice = db.Column(db.Float(precision=2), nullable=False)
+    salesPrice = db.Column(db.Float(precision=2), nullable=True)
+    image = db.Column(db.String(100), nullable=True)
 
 
-    def __init__(self, itemID, name, description, qty, category, price, salesPrice):
+    def __init__(self, itemID, name, description, qty, category, price, salesPrice, image):
         self.itemID = itemID
         self.name = name
         self.description = description
@@ -32,6 +33,7 @@ class Item(db.Model):
         self.category = category
         self.price = price
         self.salesPrice = salesPrice
+        self.image = image
 
 
     def json(self):
