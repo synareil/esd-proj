@@ -28,145 +28,185 @@
           if (link) link.classList.add("active");
         })();
     </script>
+
+    <div class="container">
+        <br>
+        <div style="text-align: center;">
+          <img id="img">
+        </div>
+        <div id="bodytext">
+        <h3 id="name"></h3>
+        <p>Price: <span id="price"></span> </p>
+        <p>Description: <span id="desc"></span></p>
+        <p>Stock: <span id="stock"></span></p><br>
+
+      </div>
+
 </body>
 
 <script>
         document.addEventListener("DOMContentLoaded", (event) => {
-        var data = [
-        {
-          "itemID": 1,
-          "name": "item1",
-          "description": "This is item #1",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 2,
-          "name": "item2",
-          "description": "This is item #2",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 3,
-          "name": "item3",
-          "description": "This is item #3",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 10,
-          "img": "assets/img/littlefuzzyss.jpg"
-        }
-      ]
-        // make api call to get data by specific id instead of this
-        for (each of data) {
-            if (each.itemID == localStorage.itemIdx) {
-                item = each
-                break
+            var data = [
+            {
+            "itemID": 1,
+            "name": "item1",
+            "description": "This is item #1",
+            "qty": 3,
+            "price": 100.00,
+            "salesPrice": 10.00,
+            "img": "assets/img/littlefuzzyss.jpg"
+            },
+            {
+            "itemID": 2,
+            "name": "item2",
+            "description": "This is item #2",
+            "qty": 3,
+            "price": 100.00,
+            "salesPrice": 0.00,
+            "img": "assets/img/littlefuzzyss.jpg"
+            },
+            {
+            "itemID": 3,
+            "name": "item3",
+            "description": "This is item #3",
+            "qty": 3,
+            "price": 100.00,
+            "salesPrice": 0.00,
+            "img": "assets/img/littlefuzzyss.jpg"
+            },
+            {
+            "itemID": 4,
+            "name": "item4",
+            "description": "This is item #4",
+            "qty": 3,
+            "price": 100.00,
+            "salesPrice": 0.00,
+            "img": "assets/img/littlefuzzyss.jpg"
+            },
+            {
+            "itemID": 4,
+            "name": "item4",
+            "description": "This is item #4",
+            "qty": 3,
+            "price": 100.00,
+            "salesPrice": 0.00,
+            "img": "assets/img/littlefuzzyss.jpg"
+            },
+            {
+            "itemID": 4,
+            "name": "item4",
+            "description": "This is item #4",
+            "qty": 3,
+            "price": 100.00,
+            "salesPrice": 0.00,
+            "img": "assets/img/littlefuzzyss.jpg"
+            },
+            {
+            "itemID": 4,
+            "name": "item4",
+            "description": "This is item #4",
+            "qty": 3,
+            "price": 100.00,
+            "salesPrice": 0.00,
+            "img": "assets/img/littlefuzzyss.jpg"
+            },
+            {
+            "itemID": 4,
+            "name": "item4",
+            "description": "This is item #4",
+            "qty": 3,
+            "price": 100.00,
+            "salesPrice": 0.00,
+            "img": "assets/img/littlefuzzyss.jpg"
+            },
+            {
+            "itemID": 4,
+            "name": "item4",
+            "description": "This is item #4",
+            "qty": 3,
+            "price": 100.00,
+            "salesPrice": 0.00,
+            "img": "assets/img/littlefuzzyss.jpg"
+            },
+            {
+            "itemID": 4,
+            "name": "item4",
+            "description": "This is item #4",
+            "qty": 3,
+            "price": 100.00,
+            "salesPrice": 0.00,
+            "img": "assets/img/littlefuzzyss.jpg"
+            },
+            {
+            "itemID": 4,
+            "name": "item4",
+            "description": "This is item #4",
+            "qty": 3,
+            "price": 100.00,
+            "salesPrice": 0.00,
+            "img": "assets/img/littlefuzzyss.jpg"
+            },
+            {
+            "itemID": 4,
+            "name": "item4",
+            "description": "This is item #4",
+            "qty": 3,
+            "price": 100.00,
+            "salesPrice": 0.00,
+            "img": "assets/img/littlefuzzyss.jpg"
+            },
+            {
+            "itemID": 4,
+            "name": "item4",
+            "description": "This is item #4",
+            "qty": 3,
+            "price": 100.00,
+            "salesPrice": 0.00,
+            "img": "assets/img/littlefuzzyss.jpg"
+            },
+            {
+            "itemID": 4,
+            "name": "item4",
+            "description": "This is item #4",
+            "qty": 3,
+            "price": 100.00,
+            "salesPrice": 10,
+            "img": "assets/img/littlefuzzyss.jpg"
             }
-        }
-        console.log(item)
-    })
+        ]
+            // make api call to get data by specific id instead of this
+            for (each of data) {
+                if (each.itemID == localStorage.itemIdx) {
+                    item = each
+                    break
+                }
+            }
+            console.log(item)
+
+            // show item image
+            image = document.getElementById('img')
+            image.src = item.img
+
+            // show item name
+            name = document.getElementById('name')
+            name.innerHTML = item.name
+
+            // show item desc
+            desc = document.getElementById('desc')
+            desc.innerHTML = item.description
+            
+            // show item stcok
+            stock = document.getElementById('stock')
+            stock.innerHTML = item.qty
+
+            // show item price
+            stock = document.getElementById('price')
+            if (item.salesPrice != 0) {
+                var sale = (item.price - item.salesPrice).toFixed(2)
+                stock.innerHTML = `<s class="text-left">$${item.price.toFixed(2)}</s>
+                                  <span class="text-right" style="color: red;">$${sale}</span>`
+            } else {
+                stock.innerHTML = `$${item.price}`
+            }
+        })
 </script>
