@@ -38,6 +38,25 @@ services:
       - ./env_files/marketing_content.env
     command: uvicorn main:app --host 0.0.0.0 --port 80 --reload
 
+  manageproduct:
+    container_name: manageproduct
+    build: ./ManageProduct/.
+    restart: on-failure
+    volumes:
+      - ./ManageProduct/.:/usr/src/app
+    ports:
+      - "5012:80"
+    depends_on:
+      - inventory
+      - rabbitmq
+      - marketing-communication
+      - marketing-content
+    networks:
+      - app_network
+    env_file:
+      - ./env_files/marketing_content.env
+    command: uvicorn main:app --host 0.0.0.0 --port 80 --reload
+
   shipping:
     build: ./shipping/.
     ports:

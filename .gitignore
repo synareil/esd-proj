@@ -11,3 +11,4 @@ venv.bak/
 env_files/
 .pyc
 /MarketingContent/__pycache__
+/accept-a-payment

@@ -68,3 +68,29 @@ curl -i -X POST --url $KONG_ADMIN_URL/services/ --data "name=$SERVICE_NAME" --da
 echo "Adding route for $SERVICE_NAME..."
 curl -i -X POST --url $KONG_ADMIN_URL/services/$SERVICE_NAME/routes --data "paths[]=$ROUTE_PATHS"
 
+# Service details
+SERVICE_NAME="placeorder"
+SERVICE_URL="http://placeorder:80/"
+ROUTE_PATHS="/"
+
+# Register service with Kong
+echo "Registering $SERVICE_NAME with Kong..."
+curl -i -X POST --url $KONG_ADMIN_URL/services/ --data "name=$SERVICE_NAME" --data "url=$SERVICE_URL"
+
+# Add a route for the service
+echo "Adding route for $SERVICE_NAME..."
+curl -i -X POST --url $KONG_ADMIN_URL/services/$SERVICE_NAME/routes --data "paths[]=$ROUTE_PATHS"
+
+
+# Service details
+SERVICE_NAME="manageproduct"
+SERVICE_URL="http://manageproduct:80/"
+ROUTE_PATHS="/"
+
+# Register service with Kong
+echo "Registering $SERVICE_NAME with Kong..."
+curl -i -X POST --url $KONG_ADMIN_URL/services/ --data "name=$SERVICE_NAME" --data "url=$SERVICE_URL"
+
+# Add a route for the service
+echo "Adding route for $SERVICE_NAME..."
+curl -i -X POST --url $KONG_ADMIN_URL/services/$SERVICE_NAME/routes --data "paths[]=$ROUTE_PATHS"
