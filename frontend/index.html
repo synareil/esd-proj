@@ -130,7 +130,7 @@
         var parentE = document.getElementById("carousel");
         var newE = document.createElement("div");
         newE.innerHTML = `
-                  <button>
+                  <button onclick = "details(${item.itemID})">
                         <div class="card" style="width: 18rem">
                             <img
                               src="${item.img}"
@@ -156,7 +156,7 @@
         var newE = document.createElement("div");
             var sale = (item.price - item.salesPrice).toFixed(2)
         newE.innerHTML = `
-                  <button>
+                  <button onclick = "details(${item.itemID})">
                         <div class="card" style="width: 18rem">
                             <img
                               src="${item.img}"
@@ -391,7 +391,7 @@
             var parentE = document.getElementById("list");
             var newE = document.createElement("div");
             newE.innerHTML = `
-                          <button>
+                          <button onclick = "details(${item.itemID})">
                         <div class="card listcard mx-auto" style="width: 18rem">
                             <img
                               src="${item.img}"
@@ -420,7 +420,7 @@
             var newE = document.createElement("div");
             var sale = (item.price - item.salesPrice).toFixed(2)
             newE.innerHTML = `
-                          <button>
+                          <button onclick = "details(${item.itemID})">
                         <div class="card listcard mx-auto" style="width: 18rem">
                             <img
                               src="${item.img}"
@@ -455,6 +455,15 @@
     <div class="row row-cols-1 row-cols-md-3 g-4" id="list">
     </div>
   </div>
+
+  <!-- to details page function -->
+  <script>
+    function details(id) {
+      localStorage.setItem("itemIdx", id);
+      window.location.assign("details.html")
+    }
+  </script>
+
   <!-- Bootstrap -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
