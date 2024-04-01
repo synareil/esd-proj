@@ -250,10 +250,16 @@ async def finish_checkout(session_id):
     if shipping_response.status_code != 201:
         message = {'message':"Shipping service failed. " + shipping_response.text, 'source':"PlaceOrder"}
         send_to_rabbitmq(message)
-        await rollback_inventory(items)
-        await rollback_order(orderID)
         raise HTTPException(status_code=shipping_response.status_code, detail="Shipping service failed")
     
+    # Close the cart
+    url= f"{CART_BASEURL}/close/{user_id}"
+    cart_response = await call_service_with_retry(method = "POST", url=url)
+    
+    if cart_response.status_code != 204:
+        message = {'message':"Cart service failed. " + shipping_response.text, 'source':"PlaceOrder"}
+        send_to_rabbitmq(message)
+        raise HTTPException(status_code=shipping_response.status_code, detail="Shipping service failed")
 
 @app.get("/cancel", status_code=status.HTTP_200_OK)
 async def cancel_checkout(session_id):
