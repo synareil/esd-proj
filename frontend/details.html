@@ -30,148 +30,150 @@
     </script>
 
     <div class="container">
-        <br>
-        <div style="text-align: center;">
+      <div class="row">
+        <div class="col-md-6">
           <img id="img">
         </div>
-        <div id="bodytext">
-        <h3 id="name"></h3>
-        <p>Price: <span id="price"></span> </p>
-        <p>Description: <span id="desc"></span></p>
-        <p>Stock: <span id="stock"></span></p><br>
-
+        <div class="col-md-6">
+          <div id="bodytext">
+            <h3 id="name"></h3>
+            <p>Price: <span id="price"></span> </p>
+            <p>Description: <span id="desc"></span></p>
+            <p>Stock: <span id="stock"></span></p><br>
+            
+            <button type="button" class="btn btn-primary" id="addtocart">Add to Cart</button>
+        </div>
       </div>
-
 </body>
 
 <script>
         document.addEventListener("DOMContentLoaded", (event) => {
             var data = [
             {
-            "itemID": 1,
-            "name": "item1",
-            "description": "This is item #1",
-            "qty": 3,
-            "price": 100.00,
-            "salesPrice": 10.00,
-            "img": "assets/img/littlefuzzyss.jpg"
+              "itemID": 1,
+              "name": "item1",
+              "description": "This is item #1",
+              "qty": 3,
+              "price": 100.00,
+              "salesPrice": 10.00,
+              "img": "assets/img/littlefuzzyss.jpg"
             },
             {
-            "itemID": 2,
-            "name": "item2",
-            "description": "This is item #2",
-            "qty": 3,
-            "price": 100.00,
-            "salesPrice": 0.00,
-            "img": "assets/img/littlefuzzyss.jpg"
+              "itemID": 2,
+              "name": "item2",
+              "description": "This is item #2",
+              "qty": 3,
+              "price": 100.00,
+              "salesPrice": 0.00,
+              "img": "assets/img/littlefuzzyss.jpg"
             },
             {
-            "itemID": 3,
-            "name": "item3",
-            "description": "This is item #3",
-            "qty": 3,
-            "price": 100.00,
-            "salesPrice": 0.00,
-            "img": "assets/img/littlefuzzyss.jpg"
+              "itemID": 3,
+              "name": "item3",
+              "description": "This is item #3",
+              "qty": 3,
+              "price": 100.00,
+              "salesPrice": 0.00,
+              "img": "assets/img/littlefuzzyss.jpg"
             },
             {
-            "itemID": 4,
-            "name": "item4",
-            "description": "This is item #4",
-            "qty": 3,
-            "price": 100.00,
-            "salesPrice": 0.00,
-            "img": "assets/img/littlefuzzyss.jpg"
+              "itemID": 4,
+              "name": "item4",
+              "description": "This is item #4",
+              "qty": 3,
+              "price": 100.00,
+              "salesPrice": 0.00,
+              "img": "assets/img/littlefuzzyss.jpg"
             },
             {
-            "itemID": 4,
-            "name": "item4",
-            "description": "This is item #4",
-            "qty": 3,
-            "price": 100.00,
-            "salesPrice": 0.00,
-            "img": "assets/img/littlefuzzyss.jpg"
+              "itemID": 4,
+              "name": "item4",
+              "description": "This is item #4",
+              "qty": 3,
+              "price": 100.00,
+              "salesPrice": 0.00,
+              "img": "assets/img/littlefuzzyss.jpg"
             },
             {
-            "itemID": 4,
-            "name": "item4",
-            "description": "This is item #4",
-            "qty": 3,
-            "price": 100.00,
-            "salesPrice": 0.00,
-            "img": "assets/img/littlefuzzyss.jpg"
+              "itemID": 4,
+              "name": "item4",
+              "description": "This is item #4",
+              "qty": 3,
+              "price": 100.00,
+              "salesPrice": 0.00,
+              "img": "assets/img/littlefuzzyss.jpg"
             },
             {
-            "itemID": 4,
-            "name": "item4",
-            "description": "This is item #4",
-            "qty": 3,
-            "price": 100.00,
-            "salesPrice": 0.00,
-            "img": "assets/img/littlefuzzyss.jpg"
+              "itemID": 4,
+              "name": "item4",
+              "description": "This is item #4",
+              "qty": 3,
+              "price": 100.00,
+              "salesPrice": 0.00,
+              "img": "assets/img/littlefuzzyss.jpg"
             },
             {
-            "itemID": 4,
-            "name": "item4",
-            "description": "This is item #4",
-            "qty": 3,
-            "price": 100.00,
-            "salesPrice": 0.00,
-            "img": "assets/img/littlefuzzyss.jpg"
+              "itemID": 4,
+              "name": "item4",
+              "description": "This is item #4",
+              "qty": 3,
+              "price": 100.00,
+              "salesPrice": 0.00,
+              "img": "assets/img/littlefuzzyss.jpg"
             },
             {
-            "itemID": 4,
-            "name": "item4",
-            "description": "This is item #4",
-            "qty": 3,
-            "price": 100.00,
-            "salesPrice": 0.00,
-            "img": "assets/img/littlefuzzyss.jpg"
+              "itemID": 4,
+              "name": "item4",
+              "description": "This is item #4",
+              "qty": 3,
+              "price": 100.00,
+              "salesPrice": 0.00,
+              "img": "assets/img/littlefuzzyss.jpg"
             },
             {
-            "itemID": 4,
-            "name": "item4",
-            "description": "This is item #4",
-            "qty": 3,
-            "price": 100.00,
-            "salesPrice": 0.00,
-            "img": "assets/img/littlefuzzyss.jpg"
+              "itemID": 4,
+              "name": "item4",
+              "description": "This is item #4",
+              "qty": 3,
+              "price": 100.00,
+              "salesPrice": 0.00,
+              "img": "assets/img/littlefuzzyss.jpg"
             },
             {
-            "itemID": 4,
-            "name": "item4",
-            "description": "This is item #4",
-            "qty": 3,
-            "price": 100.00,
-            "salesPrice": 0.00,
-            "img": "assets/img/littlefuzzyss.jpg"
+              "itemID": 4,
+              "name": "item4",
+              "description": "This is item #4",
+              "qty": 3,
+              "price": 100.00,
+              "salesPrice": 0.00,
+              "img": "assets/img/littlefuzzyss.jpg"
             },
             {
-            "itemID": 4,
-            "name": "item4",
-            "description": "This is item #4",
-            "qty": 3,
-            "price": 100.00,
-            "salesPrice": 0.00,
-            "img": "assets/img/littlefuzzyss.jpg"
+              "itemID": 4,
+              "name": "item4",
+              "description": "This is item #4",
+              "qty": 3,
+              "price": 100.00,
+              "salesPrice": 0.00,
+              "img": "assets/img/littlefuzzyss.jpg"
             },
             {
-            "itemID": 4,
-            "name": "item4",
-            "description": "This is item #4",
-            "qty": 3,
-            "price": 100.00,
-            "salesPrice": 0.00,
-            "img": "assets/img/littlefuzzyss.jpg"
+              "itemID": 4,
+              "name": "item4",
+              "description": "This is item #4",
+              "qty": 3,
+              "price": 100.00,
+              "salesPrice": 0.00,
+              "img": "assets/img/littlefuzzyss.jpg"
             },
             {
-            "itemID": 4,
-            "name": "item4",
-            "description": "This is item #4",
-            "qty": 3,
-            "price": 100.00,
-            "salesPrice": 10,
-            "img": "assets/img/littlefuzzyss.jpg"
+              "itemID": 4,
+              "name": "item4",
+              "description": "This is item #4",
+              "qty": 3,
+              "price": 100.00,
+              "salesPrice": 10,
+              "img": "assets/img/littlefuzzyss.jpg"
             }
         ]
             // make api call to get data by specific id instead of this
@@ -181,7 +183,15 @@
                     break
                 }
             }
-            console.log(item)
+
+            // ADD TO CART BUTTON
+            var addToCartButton = document.getElementById('addtocart');
+            // Add the event listener
+            addToCartButton.addEventListener('click', function() {
+              // Call your function here
+              alert("add to cart");
+
+            });
 
             // show item image
             image = document.getElementById('img')
@@ -209,4 +219,7 @@
                 stock.innerHTML = `$${item.price}`
             }
         })
+
+
+        
 </script>
