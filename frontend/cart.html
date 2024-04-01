@@ -33,45 +33,106 @@
     </style>
 </head>
 <body>
-  <div id="nav-placeholder"></div>
-  <div class="container mt-5">
-    <div class="row">
-      <div class="col-lg-8">
-        <div class="mb-3">
-          <div class="pt-4 wish-list">
-            <div id="shopping_items"></div>
-
-            
+    <div id="nav-placeholder"></div>
+  <div id="app">
+    <div class="container mt-5">
+      <div class="row">
+        <div class="col-lg-8">
+          <div class="mb-3">
+            <div class="pt-4 wish-list">
+              <div v-if="shoppingItems.length === 0">
+                No items in the cart.
+              </div>
+              <div v-else>
+                <div v-for="(item, index) in shoppingItems" :key="index">
+                  <div class="row mb-4">
+                    <div class="col-md-5 col-lg-3 col-xl-3">
+                      <div class="view zoom overlay z-depth-1 rounded mb-3 mb-md-0">
+                        <img class="img-fluid w-100" :src="item.img" :alt="item.name">
+                      </div>
+                    </div>
+                    <div class="col-md-7 col-lg-9 col-xl-9">
+                      <div>
+                        <div class="d-flex justify-content-between">
+                          <div>
+                            <h5>{{ item.name }}</h5>
+                            <p class="mb-3 text-muted text-uppercase small">{{ item.description }}</p>
+                          </div>
+                          <div>
+                            <div class="d-flex justify-content-between align-items-center mr-2">
+                              <h6 class="mb-0">Quantity: </h6>
+                              <div class="cart-item">
+                                <div class="item-quantity mx-2">
+                                  <button @click="decrementQuantity(index)">-</button>
+                                  <span>{{ item.qty }}</span>
+                                  <button @click="incrementQuantity(index)">+</button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div>
+                            <a href="#!" type="button" class="card-link-secondary small text-uppercase mr-3"><i class="fas fa-trash-alt mr-1"></i> Remove item </a>
+                          </div>
+                          <p v-if="item.salesPrice > 0" class="mb-0 mr-2">
+                            <span>
+                              <s>$ {{ item.price }}</s>
+                            </span>
+                            <span>
+                              <strong class='text-danger'>$ {{ item.price - item.salesPrice }}</strong>
+                            </span>
+                          </p>
+                          <p v-else-if="item.salesPrice === 0" class="mb-0 mr-2"><span><strong>$ {{ item.price }}</strong></span></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="col-lg-4">
-        <div class="mb-3">
-          <div class="pt-4" id="calculations">
+        <div class="col-lg-4">
+          <div class="mb-3">
+            <div class="pt-4">
+              <h5 class="mb-3">Check Out Now</h5>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
+                  Total Amount
+                  <span>$ {{ total_price }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                  Discount
+                  <span>-($ {{ total_sales }})</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                  Shipping
+                  <span>FREE</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
+                  <div>
+                    <strong>Total amount </strong>
+                    <strong>
+                      <p class="mb-0">(including GST)</p>
+                    </strong>
+                  </div>
+                  <span><strong>$ {{ total_payment_price }}</strong></span>
+                </li>
+              </ul>
+              <button type="button" class="btn btn-primary btn-block w-100" style="font-size: 20px; padding: 10px 0;">Checkout</button>
+            </div>
           </div>
         </div>
+        
       </div>
-      
     </div>
   </div>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
   <script>
-    //for buttons
-    function decrementQuantity(id) {
-      var quantity = document.getElementById("quantity-"+id).innerText;
-      if (quantity > 1) {
-        quantity--;
-        document.getElementById('quantity-'+id).innerText = quantity;
-      }
-    }
-
-    function incrementQuantity(id) {
-      var quantity = document.getElementById("quantity-"+id).innerText;
-      quantity++;
-      document.getElementById('quantity-'+id).innerText = quantity;
-    }
 
     //for navigation bar
     (async function() {
@@ -88,180 +149,71 @@
       // Add the 'active' class to the nav link
       if (link) link.classList.add("active");
     })();
-  
-    //simulated data here
-      var data = [
-        {
-        "ItemID": 1,
-        "name": "item1",
-        "description": "This is item #1",
-        "qty": 3,
-        "price": 100.00,
-        "salesPrice": 10.00,
-        "img": "assets/img/littlefuzzyss.jpg"
+
+    new Vue({
+      el: '#app',
+      data: {
+        shoppingItems: [],
+        total_price: 0,
+        total_payment_price: 0,
+        total_sales: 0
+      },
+      created() {
+        this.loadItems();
+      },
+      methods: {
+        loadItems() {
+          // Simulated data
+          var data = [
+            {
+              "ItemID": 1,
+              "name": "item1",
+              "description": "This is item #1",
+              "qty": 3,
+              "price": 100.00,
+              "salesPrice": 10.00,
+              "img": "assets/img/littlefuzzyss.jpg"
+            },
+            {
+              "itemID": 2,
+              "name": "item2",
+              "description": "This is item #2",
+              "qty": 3,
+              "price": 100.00,
+              "salesPrice": 0.00,
+              "img": "assets/img/littlefuzzyss.jpg"
+            },
+            {
+              "itemID": 3,
+              "name": "item3",
+              "description": "This is item #3",
+              "qty": 1,
+              "price": 100.00,
+              "salesPrice": 0.00,
+              "img": "assets/img/littlefuzzyss.jpg"
+            },
+          ];
+
+          this.shoppingItems = data;
+          this.calculateTotals();
         },
-        {
-        "itemID": 2,
-        "name": "item2",
-        "description": "This is item #2",
-        "qty": 3,
-        "price": 100.00,
-        "salesPrice": 0.00,
-        "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-        "itemID": 3,
-        "name": "item3",
-        "description": "This is item #3",
-        "qty": 1,
-        "price": 100.00,
-        "salesPrice": 0.00,
-        "img": "assets/img/littlefuzzyss.jpg"
-        },
-      ];
-
-      var item_count = data.length;
-
-      var total_price = 0;
-      var total_payment_price = 0;
-      var total_sales = 0;
-
-      var item_display_cart = `<h5 class="mb-4">Cart (<span>${item_count}</span> items)</h5>`;
-      for (item of data){
-        var shopping_cart = document.getElementById('shopping_items');
-
-        var item_name = item.name;
-        var item_description = item.description;
-        var item_qty = item.qty;
-        var item_price = item.price;
-        var item_salesPrice = item.salesPrice;        
-        var item_img = item.img;
-
-        //create a countdown timer
-        var countDownTime = 1 * 60;
-
-        // Update the count down every 1 second
-        var countdown = setInterval(function() {
-
-          // Decrease the count down time
-          countDownTime--;
-
-          // Time calculations for minutes and seconds
-          var minutes = Math.floor(countDownTime / 60);
-          var seconds = Math.floor(countDownTime % 60);
-
-          document.getElementById("timer").innerHTML = minutes + "m " + seconds + "s ";
-
-          // If the count down is finished, write some text 
-          if (countDownTime < 0) {
-            clearInterval(countdown);
-            item_qty = 0;
-            document.getElementById("timer").innerHTML = "EXPIRED";
+        decrementQuantity(index) {
+          if (this.shoppingItems[index].qty > 1) {
+            this.shoppingItems[index].qty--;
+            this.calculateTotals();
           }
-        }, 1000);        
-
-        if (item_qty > 0){
-          
-        total_payment_price += item_price - item_salesPrice;
-        total_price += item_price;
-        total_sales += item_salesPrice;
-        
-        
-          item_display_cart += `
-        <hr class="mb-4">
-        <div class="row mb-4">
-          <div class="col-md-5 col-lg-3 col-xl-3">
-            <div class="view zoom overlay z-depth-1 rounded mb-3 mb-md-0">
-              <img class="img-fluid w-100"
-                src="${item_img}">
-            </div>
-          </div>
-          <div class="col-md-7 col-lg-9 col-xl-9">
-            <div>
-              <div class="d-flex justify-content-between  ">
-                <div>
-                  <h5>${item_name}</h5>
-                  <p class="mb-3 text-muted text-uppercase small">${item_description}</p>
-                </div>
-                <div>
-                  <div class="d-flex justify-content-between align-items-center mr-2">
-                    <h6 class="mb-0">Quantity: </h6>
-                    <div class="cart-item">
-                      <div class="item-quantity mx-2">
-                        <button onclick="decrementQuantity(1)">-</button>
-                        <span id="quantity-1">${item_qty}</span>
-                        <button onclick="incrementQuantity(1)">+</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <a href="#!" type="button" class="card-link-secondary small text-uppercase mr-3"><i
-                      class="fas fa-trash-alt mr-1"></i> Remove item </a>
-                </div>
-                `
-
-        if (item_salesPrice > 0){
-          item_display_cart += `
-          <p class="mb-0 mr-2">
-            <span>
-              <s>$${item_price}</s>
-            </span>
-            <span>
-              <strong class='text-danger'>$${item_price-item_salesPrice}</strong>
-            </span>
-          </p>`
-        }
-        else if(item_salesPrice == 0){
-          item_display_cart += `<p class="mb-0 mr-2"><span><strong>$${item_price}</strong></span></p>`;
-        }
-
-        
-        item_display_cart += `
-        </div></div></div></div> 
-        `;
+        },
+        incrementQuantity(index) {
+          this.shoppingItems[index].qty++;
+          this.calculateTotals();
+        },
+        calculateTotals() {
+          this.total_price = this.shoppingItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
+          this.total_sales = this.shoppingItems.reduce((acc, item) => acc + (item.salesPrice * item.qty), 0);
+          this.total_payment_price = this.total_price - this.total_sales;
         }
       }
-      shopping_cart.innerHTML += item_display_cart;
-
-      var calculations = document.getElementById('calculations');
-      var display_calculations = "";
-
-      display_calculations += `
-      <h5 class="mb-3">Check Out Now</h5>
-      
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
-                Total Amount
-                <span>$${total_price}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center  px-0">
-                Discount
-                <span>-($${total_sales})</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center  px-0">
-                Shipping
-                <span>FREE</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
-                <div>
-                  <strong>Total amount </strong>
-                  <strong>
-                    <p class="mb-0">(including GST)</p>
-                  </strong>
-                </div>
-                <span><strong>$${total_payment_price}</strong></span>
-              </li>
-            </ul>
-            <button type="button" class="btn btn-primary btn-block w-100" style="font-size: 20px; padding: 10px 0;">Checkout</button>
-      `
-
-      calculations.innerHTML += display_calculations;
-
-
-      
+    });
   </script>
   
   <!-- Bootstrap -->
