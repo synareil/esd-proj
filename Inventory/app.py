@@ -283,6 +283,7 @@ def checkout_items():
     data = request.get_json()
     if data:
         try:
+            totalPrice = 0
             for item_checkout in data["checkout"]:
                 itemID = int(item_checkout.get("itemID"))
                 quantity = item_checkout.get("quantity")
@@ -291,6 +292,13 @@ def checkout_items():
                 db.select(Item).filter(Item.itemID==itemID).
                 limit(1)
                 ).first()
+                
+                
+                if item.salesPrice:
+                    totalPrice += item.salesPrice
+                else:
+                    totalPrice += item.price
+                    
                 if not item:
                     return jsonify(
                         {
@@ -318,10 +326,15 @@ def checkout_items():
                     ), 422
             db.session.commit()
             return jsonify(
-                {
-                    "code": 202,
-                }
-            )
+                        {
+                            "code": 200,
+                            "data": {
+                                "totalPrice": totalPrice
+                            }
+                        }
+                    ), 200
+        
+        
         except SQLAlchemyError as e:
             db.session.rollback()
  

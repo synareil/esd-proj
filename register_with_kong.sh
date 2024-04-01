@@ -71,7 +71,7 @@ curl -i -X POST --url $KONG_ADMIN_URL/services/$SERVICE_NAME/routes --data "path
 # Service details
 SERVICE_NAME="placeorder"
 SERVICE_URL="http://placeorder:80/"
-ROUTE_PATHS="/"
+ROUTE_PATHS="/placeorder"
 
 # Register service with Kong
 echo "Registering $SERVICE_NAME with Kong..."
@@ -85,7 +85,7 @@ curl -i -X POST --url $KONG_ADMIN_URL/services/$SERVICE_NAME/routes --data "path
 # Service details
 SERVICE_NAME="manageproduct"
 SERVICE_URL="http://manageproduct:80/"
-ROUTE_PATHS="/"
+ROUTE_PATHS="/manageproduct"
 
 # Register service with Kong
 echo "Registering $SERVICE_NAME with Kong..."
