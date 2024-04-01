@@ -137,6 +137,29 @@
         var item_salesPrice = item.salesPrice;        
         var item_img = item.img;
 
+        //create a countdown timer
+        var countDownTime = 1 * 60;
+
+        // Update the count down every 1 second
+        var countdown = setInterval(function() {
+
+          // Decrease the count down time
+          countDownTime--;
+
+          // Time calculations for minutes and seconds
+          var minutes = Math.floor(countDownTime / 60);
+          var seconds = Math.floor(countDownTime % 60);
+
+          document.getElementById("timer").innerHTML = minutes + "m " + seconds + "s ";
+
+          // If the count down is finished, write some text 
+          if (countDownTime < 0) {
+            clearInterval(countdown);
+            item_qty = 0;
+            document.getElementById("timer").innerHTML = "EXPIRED";
+          }
+        }, 1000);        
+
         if (item_qty > 0){
           
         total_payment_price += item_price - item_salesPrice;
@@ -178,11 +201,27 @@
                   <a href="#!" type="button" class="card-link-secondary small text-uppercase mr-3"><i
                       class="fas fa-trash-alt mr-1"></i> Remove item </a>
                 </div>
-                <p class="mb-0 mr-2"><span><strong>$${item_price}</strong></span></p>
-              </div>
-            </div>
-          </div>
-        </div> `
+                `
+
+        if (item_salesPrice > 0){
+          item_display_cart += `
+          <p class="mb-0 mr-2">
+            <span>
+              <s>$${item_price}</s>
+            </span>
+            <span>
+              <strong class='text-danger'>$${item_price-item_salesPrice}</strong>
+            </span>
+          </p>`
+        }
+        else if(item_salesPrice == 0){
+          item_display_cart += `<p class="mb-0 mr-2"><span><strong>$${item_price}</strong></span></p>`;
+        }
+
+        
+        item_display_cart += `
+        </div></div></div></div> 
+        `;
         }
       }
       shopping_cart.innerHTML += item_display_cart;
