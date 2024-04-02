@@ -71,7 +71,7 @@ class NewSalesRequest(BaseModel):
 async def read_all(db: db_dependency):
     return db.query(MarketingContent).all()
 
-@app.post("/marketingcontent/newsales", status_code=status.HTTP_201_CREATED)
+@app.post("/newsales", status_code=status.HTTP_201_CREATED)
 async def create_marketing(newSales_request: NewSalesRequest, db: db_dependency):
     userItem = newSales_request.userItem
     
@@ -94,10 +94,25 @@ async def create_marketing(newSales_request: NewSalesRequest, db: db_dependency)
                             "name":name},
                       "templateId":4,
                       "params":{"items": items_return}}
+            #sample item
+            # "items":[
+            #         {"name": "Vinyl Sticker 1",
+            #         "image": "https://i.imgur.com/lmuOVZZ.jpeg",
+            #         "oldPrice": "4.30",
+            #         "price": "2.00"},
+            #         {"name": "Vinyl Sticker 1",
+            #         "image": "https://i.imgur.com/Jt3DXDX.jpeg",
+            #         "oldPrice": 4.3,
+            #         "price": 2},
+            #         {"name": "Vinyl Sticker 1",
+            #         "image": "https://www.flickr.com/photos/184802690@N03/53600540877/",
+            #         "oldPrice": 4.3,
+            #         "price": 2}
+            #         ]
             print(message)
             send_to_rabbitmq(message)
 
-@app.post("/marketingcontent/user", status_code=status.HTTP_201_CREATED)
+@app.post("/user", status_code=status.HTTP_201_CREATED)
 async def create_user(user_request: UserRequest, db: db_dependency):
     user_model = User(**user_request.model_dump())
     db.add(user_model)

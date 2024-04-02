@@ -102,15 +102,17 @@ class Item(BaseModel):
 
 class SalesRequest(BaseModel):
     items: List[Item]
+    title: str
 
 @app.get("/health", status_code=status.HTTP_200_OK)
 async def check_health():
     return None
 
-@app.post("/sales", status_code=status.HTTP_200_OK)
+@app.post("/newsales", status_code=status.HTTP_200_OK)
 async def add_item(salesRequest: SalesRequest):
     
     #call inventory microservice
+    items = {}
     for item in salesRequest.items:
         itemID = item.itemID
         salesPrice = item.salesPrice
@@ -119,7 +121,13 @@ async def add_item(salesRequest: SalesRequest):
         headers = {"Content-Type": "application/json"}
         payload = {'salesPrice': salesPrice}
         inventory_response = await call_service_with_retry(method = "PUT", url=url, json=payload)  
+        responseItem = inventory_response.json()["data"]
         
+        itemModel = {"name": responseItem["name"],
+                     "image": responseItem["image"],
+                     "oldPrice": f"{responseItem["price"]:.2f}",
+                     "price": f"{responseItem["salesPrice"]:.2f}"}
+        items[str(itemID)] = itemModel
         if inventory_response.status_code != 200:
             raise HTTPException(status_code=inventory_response.status_code, detail=inventory_response.text)
        
@@ -132,14 +140,26 @@ async def add_item(salesRequest: SalesRequest):
         headers = {"Content-Type": "application/json"}
         
         cart_response = await call_service_with_retry(method = "GET", url=url, json=payload) 
-        users = items = cart_response.json()["data"]
+        users = cart_response.json()["data"]
         for user in users:
+            user = str(user)
             if user not in user_item:
-                user_item[user] = [itemID]
+                user_item[user] = [str(itemID)]
             else:
-                user_item[user].append(itemID)
+                user_item[user].append(str(itemID))
         if cart_response.status_code != 202:
             raise HTTPException(status_code=cart_response.status_code, detail=cart_response.text)
+
     
      
-        
+    #call marketing content microservice
+    url = f"{KONG_GATEWAY}/marketing-content/newsales"
+    payload = {"title": salesRequest.title,
+               "items": items,
+               "userItem": user_item}
+    
+    marketing_response = await call_service_with_retry(method = "POST", url=url, json=payload)    
+    if marketing_response.status_code != 201:
+            raise HTTPException(status_code=marketing_response.status_code, detail=marketing_response.text)
+    
+    
