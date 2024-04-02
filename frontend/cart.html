@@ -222,6 +222,7 @@
         removeitem(index){
           console.log(this.shoppingItems);
           this.shoppingItems.splice(index, 1);
+          this.calculateTotals();
         },
         calculateTotals() {
           this.total_price = this.shoppingItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
