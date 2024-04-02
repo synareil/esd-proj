@@ -9,6 +9,7 @@ import httpx
 import asyncio
 import async_timeout
 import stripe
+from fastapi.middleware.cors import CORSMiddleware
 
 stripe.api_key = os.getenv("STRIPE_API_KEY","sk_test_51Ov2FCHr2KXuSharY9xOCUwZA46HDdAMWpWvblgstDH6LMPpo2rSbh3tcy2ts0wTD4LBJeR0Fv1BOON6dXANDiS20027koww3v")
 RABBITMQ_USER = os.getenv("RABBITMQ_USER", "user")
@@ -20,10 +21,7 @@ QUEUE_NAME = "PlaceOrder.error"
 
 import pika
 credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
-parameters = pika.ConnectionParameters(host=RABBITMQ_HOST,
-                                        port=RABBITMQ_PORT,
-                                        virtual_host=RABBITMQ_VHOST,
-                                        credentials=credentials)
+parameters = pika.ConnectionParameters(host=RABBITMQ_HOST,port=RABBITMQ_PORT,virtual_host=RABBITMQ_VHOST,credentials=credentials)
 connection = pika.BlockingConnection(parameters)
 channel = connection.channel()
 
@@ -48,6 +46,15 @@ SHIPPING_BASEURL  = f"{KONG_GATEWAY}/shipping"
 YOUR_DOMAIN = 'http://localhost:8000/placeorder'
 
 app = FastAPI()
+
+# Allow CORS for all origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+)
 
 class CheckoutRequest(BaseModel):
     user_id: int
@@ -137,7 +144,7 @@ async def call_service_with_retry(method: str, url: str, retries: int = 3, backo
 async def check_health():
     return None
 
-@app.post("/checkout", status_code=status.HTTP_303_SEE_OTHER)
+@app.post("/checkout", status_code=status.HTTP_200_OK)
 async def orchestrate_microservices(checkoutRequest: CheckoutRequest):
     user_id = checkoutRequest.user_id
     shippingAddress = checkoutRequest.shippingAddress
@@ -209,8 +216,9 @@ async def orchestrate_microservices(checkoutRequest: CheckoutRequest):
 
     # response = Response()
     # response.status_code = 303
+    # response.headers["Access-Control-Allow-Origin"] = "*"
     # response.headers["Location"] = session.url
-    # return respon =se
+    # return response
     
     return session.url
 
@@ -260,6 +268,12 @@ async def finish_checkout(session_id):
         message = {'message':"Cart service failed. " + cart_response.text, 'source':"PlaceOrder"}
         send_to_rabbitmq(message)
         raise HTTPException(status_code=cart_response.status_code, detail="Cart service failed")
+    
+    response = Response()
+    response.status_code = 303
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Location"] = "http://host.docker.internal:8008/index.html"
+    return response
 
 @app.get("/cancel", status_code=status.HTTP_200_OK)
 async def cancel_checkout(session_id):
