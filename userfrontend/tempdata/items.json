@@ -1,0 +1,41 @@
+{
+    "items": [
+        {
+            "itemID":1,
+            "name": "item1",
+            "description": "This is item #1",
+            "qty": 3,
+            "price": 100.00,
+            "salesPrice": 0.00,
+            "img": "assets/img/littlefuzzyss.jpg"
+        },
+        {
+            "itemID":2,
+            "name": "item2",
+            "description": "This is item #2",
+            "qty": 3,
+            "price": 100.00,
+            "salesPrice": 0.00,
+            "img": "assets/img/littlefuzzyss.jpg"
+        },
+        {
+            "itemID":3,
+            "name": "item3",
+            "description": "This is item #3",
+            "qty": 3,
+            "price": 100.00,
+            "salesPrice": 0.00,
+            "img": "assets/img/littlefuzzyss.jpg"
+        },
+        {
+            "itemID":4,
+            "name": "item4",
+            "description": "This is item #4",
+            "qty": 3,
+            "price": 100.00,
+            "salesPrice": 0.00,
+            "img": "assets/img/littlefuzzyss.jpg"
+        }
+    ]
+
+}

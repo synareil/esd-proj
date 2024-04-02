@@ -46,7 +46,6 @@
           if (item.salesPrice != 0) {
             var parentE = document.getElementById("list");
             var newE = document.createElement("div");
-            var sale = (item.price - item.salesPrice).toFixed(2)
             newE.innerHTML = `
                           <button onclick = "details(${item.itemID})">
                         <div class="card listcard mx-auto" style="width: 18rem">
@@ -63,7 +62,7 @@
                                   <s class="text-left">$${item.price.toFixed(
                                     2
                                   )}</s>
-                                  <span class="text-right" style="color: red;">$${sale}</span>
+                                  <span class="text-right" style="color: red;">$${item.salesPrice.toFixed(2)}</span>
                                 </div>
                               </p>
                             </div>

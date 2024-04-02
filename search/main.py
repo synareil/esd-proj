@@ -115,7 +115,7 @@ async def search(q: str, user_id: int):
     url = f"{INVENTORY_BASEURL}/search?q={q}"
     inventory_response = await call_service_with_retry(method = "GET", url=url)
     if inventory_response.status_code != 200:
-        message = {'message':"Invetory service failed. " + inventory_response.text, 'source':"Search"}
+        message = {'message':"Inventory service failed. ", 'source':"Search"}
         send_to_rabbitmq(message)
         raise HTTPException(status_code=inventory_response.status_code, detail=inventory_response.text)
     
@@ -127,7 +127,7 @@ async def search(q: str, user_id: int):
     cart_response = await call_service_with_retry(method='GET', url=url, headers=headers)
     
     if cart_response.status_code != 202 and cart_response.status_code != 404:
-        message = {'message':"Cart service failed. " + cart_response.text, 'source':"Search"}
+        message = {'message':"Cart service failed. ", 'source':"Search"}
         send_to_rabbitmq(message)
         raise HTTPException(status_code=cart_response.status_code, detail="Cart service failed")
     else:
@@ -151,7 +151,7 @@ async def search(q: str, user_id: int):
         payload = {"items": items}
         recommendation_response = await call_service_with_retry(method = "POST", url=url, json=payload)
         if recommendation_response.status_code != 200:
-            message = {'message':"Recommendation service failed. " + recommendation_response.text, 'source':"Search"}
+            message = {'message':"Recommendation service failed. ", 'source':"Search"}
             send_to_rabbitmq(message)
             raise HTTPException(status_code=recommendation_response.status_code, detail=recommendation_response.text)
         
