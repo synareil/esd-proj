@@ -12,3 +12,7 @@ env_files/
 .pyc
 /MarketingContent/__pycache__
 /accept-a-payment
+/MarketingContent/__pycache__
+/MarketingContent/__pycache__
+*.pyc
+MarketingContent/__pycache__/database.cpython-312.pyc
