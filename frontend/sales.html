@@ -48,7 +48,7 @@
             var newE = document.createElement("div");
             var sale = (item.price - item.salesPrice).toFixed(2)
             newE.innerHTML = `
-                          <button>
+                          <button onclick = "details(${item.itemID})">
                         <div class="card listcard mx-auto" style="width: 18rem">
                             <img
                               src="${item.image}"
@@ -82,6 +82,14 @@
     <div class="container">
       <div class="row row-cols-1 row-cols-md-3 g-4" id="list"></div>
     </div>
+
+      <!-- to details page function -->
+        <script>
+          function details(id) {
+            localStorage.setItem("itemIdx", id);
+            window.location.assign("details.html")
+          }
+      </script>
 
     <!-- Bootstrap -->
     <script
