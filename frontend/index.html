@@ -7,6 +7,7 @@
   <title>Document</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
   <div id="nav-placeholder"></div>
@@ -49,9 +50,8 @@
   </div>
   <br>
 
-  <!-- carousel / slider scripts -->
   <script>
-    (async function() {
+    (async function () {
       const response = await fetch('./nav.html');
       const data = await response.text();
       document.getElementById('nav-placeholder').innerHTML = data;
@@ -65,74 +65,24 @@
       // Add the 'active' class to the nav link
       if (link) link.classList.add("active");
     })();
-    
+
     document.addEventListener("DOMContentLoaded", (event) => {
-      var data = [
-        {
-          "itemID": 1,
-          "name": "item1",
-          "description": "This is item #1",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 10.01,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 2,
-          "name": "item2",
-          "description": "This is item #2",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 3,
-          "name": "item3",
-          "description": "This is item #3",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 10.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        }
-      ]
-      for (item of data) {
-        console.log(item)
-        if (item.salesPrice == 0) {
-        var parentE = document.getElementById("carousel");
-        var newE = document.createElement("div");
-        newE.innerHTML = `
+      // carousel / slider script
+      localStorage.setItem("baseURL", "http://localhost:8000")
+      var url = localStorage.baseURL + "/item"
+      axios.get(url)
+        .then(response => {
+          var data = response.data.data.items
+          for (item of data) {
+            console.log(item.image)
+            if (item.salesPrice == 0) {
+              var parentE = document.getElementById("carousel");
+              var newE = document.createElement("div");
+              newE.innerHTML = `
                   <button onclick = "details(${item.itemID})">
                         <div class="card" style="width: 18rem">
                             <img
-                              src="${item.img}"
+                              src="${item.image}"
                               class="card-img-top"
                               alt="..." height="286" width="286" style="object-fit: cover;"
                             />
@@ -149,16 +99,16 @@
                         </div>
                           </button>
                         `;
-        parentE.append(newE);
-                        } else {
-                          var parentE = document.getElementById("carousel");
-        var newE = document.createElement("div");
-            var sale = (item.price - item.salesPrice).toFixed(2)
-        newE.innerHTML = `
+              parentE.append(newE);
+            } else {
+              var parentE = document.getElementById("carousel");
+              var newE = document.createElement("div");
+              var sale = (item.price - item.salesPrice).toFixed(2)
+              newE.innerHTML = `
                   <button onclick = "details(${item.itemID})">
                         <div class="card" style="width: 18rem">
                             <img
-                              src="${item.img}"
+                              src="${item.image}"
                               class="card-img-top"
                               alt="..." height="286" width="286" style="object-fit: cover;"
                             />
@@ -176,60 +126,131 @@
                         </div>
                           </button>
                         `;
-        //  <span class="text-right">${getDaysAgo(card.timestamp)}</span>
-        parentE.append(newE);
-                        }
-      }
+              //  <span class="text-right">${getDaysAgo(card.timestamp)}</span>
+              parentE.append(newE);
+            }
+          }
+        })
 
       // Button Script          
-          const prevButton1 = document.querySelector("#prev1");
-          const nextButton1 = document.querySelector("#next1");
-          const content1 = document.querySelector("#swiper1");
-          const swiper1 = document.querySelector("#carousel");
-          prevButton1.style.opacity = 0
-          nextButton1.style.opacity = 0
+      const prevButton1 = document.querySelector("#prev1");
+      const nextButton1 = document.querySelector("#next1");
+      const content1 = document.querySelector("#swiper1");
+      const swiper1 = document.querySelector("#carousel");
+      prevButton1.style.opacity = 0
+      nextButton1.style.opacity = 0
 
-          let scrollPosition1 = 0;
-          const representativeItem1 = document.querySelector("#swiper1");
-          const itemWidth1 = content1.clientWidth;
-          const totalWidth1 = content1.scrollWidth - content1.clientWidth;
+      let scrollPosition1 = 0;
+      const representativeItem1 = document.querySelector("#swiper1");
+      const itemWidth1 = content1.clientWidth;
+      const totalWidth1 = content1.scrollWidth - content1.clientWidth;
 
-          setTimeout(() => {
-            const totalWidth1 = content1.scrollWidth - content1.clientWidth;
-            prevButton1.addEventListener("click", () => {
-              scrollPosition1 -= itemWidth1;
-              if (scrollPosition1 < 0) {
-                scrollPosition1 = 0;
-              }
-              swiper1.style.transform = `translateX(-${scrollPosition1}px)`;
-              updateButtonVisibility1();
-            });
+      setTimeout(() => {
+        const totalWidth1 = content1.scrollWidth - content1.clientWidth;
+        prevButton1.addEventListener("click", () => {
+          scrollPosition1 -= itemWidth1;
+          if (scrollPosition1 < 0) {
+            scrollPosition1 = 0;
+          }
+          swiper1.style.transform = `translateX(-${scrollPosition1}px)`;
+          updateButtonVisibility1();
+        });
 
-            nextButton1.addEventListener("click", () => {
-              scrollPosition1 += itemWidth1;
-              if (scrollPosition1 > totalWidth1) {
-                scrollPosition1 = totalWidth1;
-              }
-              swiper1.style.transform = `translateX(-${scrollPosition1}px)`;
-              updateButtonVisibility1();
-            });
+        nextButton1.addEventListener("click", () => {
+          scrollPosition1 += itemWidth1;
+          if (scrollPosition1 > totalWidth1) {
+            scrollPosition1 = totalWidth1;
+          }
+          swiper1.style.transform = `translateX(-${scrollPosition1}px)`;
+          updateButtonVisibility1();
+        });
 
-            function updateButtonVisibility1() {
-              if (scrollPosition1 !== 0) {
-                prevButton1.style.opacity = 100
-              } else {
-                prevButton1.style.opacity = 0
-              }
-              if (scrollPosition1 !== totalWidth1) {
-                nextButton1.style.opacity = 100
-              } else {
-                nextButton1.style.opacity = 0
-              }
+        function updateButtonVisibility1() {
+          if (scrollPosition1 !== 0) {
+            prevButton1.style.opacity = 100
+          } else {
+            prevButton1.style.opacity = 0
+          }
+          if (scrollPosition1 !== totalWidth1) {
+            nextButton1.style.opacity = 100
+          } else {
+            nextButton1.style.opacity = 0
+          }
+        }
+
+        updateButtonVisibility1();
+      }, 1000);
+
+
+      // item scripts
+      var url = localStorage.baseURL + "/item"
+      axios.get(url)
+        .then(response => {
+          var data = response.data.data.items
+          for (item of data) {
+            if (item.salesPrice == 0) {
+              var parentE = document.getElementById("list");
+              var newE = document.createElement("div");
+              newE.innerHTML = `
+                          <button onclick = "details(${item.itemID})">
+                        <div class="card listcard mx-auto" style="width: 18rem">
+                            <img
+                              src="${item.image}"
+                              class="card-img-top"
+                              alt="..." height="286" width="286" style="object-fit: cover;"
+                            />
+                            <div class="card-body">
+                
+                              <h5 class="card-title">${item.name}</h5>
+                              <p class="card-text">
+                                <div class="price-timestamp-container">
+                                  <span class="text-left">$${item.price.toFixed(
+                2
+              )}</span>
+                                </div>
+                              </p>
+                            </div>
+                        </div>
+                          </button>
+                      `;
+              //  <span class="text-right">${getDaysAgo(card.timestamp)}</span>
+              parentE.append(newE);
+              newE.className = "col-12 col-xxl-3 col-xl-4 col-lg-4 col-md-6";
+            } else {
+              var parentE = document.getElementById("list");
+              var newE = document.createElement("div");
+              var sale = (item.price - item.salesPrice).toFixed(2)
+              newE.innerHTML = `
+                          <button onclick = "details(${item.itemID})">
+                        <div class="card listcard mx-auto" style="width: 18rem">
+                            <img
+                              src="${item.image}"
+                              class="card-img-top"
+                              alt="..." height="286" width="286" style="object-fit: cover;"
+                            />
+                            <div class="card-body">
+                
+                              <h5 class="card-title">${item.name}</h5>
+                              <p class="card-text">
+                                <div class="price-timestamp-container">
+                                  <s class="text-left">$${item.price.toFixed(
+                2
+              )}</s>
+                                  <span class="text-right" style="color: red;">$${sale}</span>
+                                </div>
+                              </p>
+                            </div>
+                        </div>
+                          </button>
+                      `;
+              //  <span class="text-right">${getDaysAgo(card.timestamp)}</span>
+              parentE.append(newE);
+              newE.className = "col-12 col-xxl-3 col-xl-4 col-lg-4 col-md-6";
             }
+          }
 
-            updateButtonVisibility1();
-          }, 1000);
-    })
+        });
+      })
   </script>
 
   <!-- Carousel / Slider of Recommended Items -->
@@ -252,203 +273,6 @@
     </div>
   </section>
 
-  <!-- item scripts -->
-  <script>
-    document.addEventListener("DOMContentLoaded", (event) => {
-      var data = [
-        {
-          "itemID": 1,
-          "name": "item1",
-          "description": "This is item #1",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 2,
-          "name": "item2",
-          "description": "This is item #2",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 3,
-          "name": "item3",
-          "description": "This is item #3",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 0.00,
-          "img": "assets/img/littlefuzzyss.jpg"
-        },
-        {
-          "itemID": 4,
-          "name": "item4",
-          "description": "This is item #4",
-          "qty": 3,
-          "price": 100.00,
-          "salesPrice": 10,
-          "img": "assets/img/littlefuzzyss.jpg"
-        }
-      ]
-      for (item of data) {
-        console.log(item)
-
-        if (item.salesPrice == 0) {
-            var parentE = document.getElementById("list");
-            var newE = document.createElement("div");
-            newE.innerHTML = `
-                          <button onclick = "details(${item.itemID})">
-                        <div class="card listcard mx-auto" style="width: 18rem">
-                            <img
-                              src="${item.img}"
-                              class="card-img-top"
-                              alt="..." height="286" width="286" style="object-fit: cover;"
-                            />
-                            <div class="card-body">
-                
-                              <h5 class="card-title">${item.name}</h5>
-                              <p class="card-text">
-                                <div class="price-timestamp-container">
-                                  <span class="text-left">$${item.price.toFixed(
-                                    2
-                                  )}</span>
-                                </div>
-                              </p>
-                            </div>
-                        </div>
-                          </button>
-                      `;
-            //  <span class="text-right">${getDaysAgo(card.timestamp)}</span>
-            parentE.append(newE);
-            newE.className = "col-12 col-xxl-3 col-xl-4 col-lg-4 col-md-6";
-          } else {
-            var parentE = document.getElementById("list");
-            var newE = document.createElement("div");
-            var sale = (item.price - item.salesPrice).toFixed(2)
-            newE.innerHTML = `
-                          <button onclick = "details(${item.itemID})">
-                        <div class="card listcard mx-auto" style="width: 18rem">
-                            <img
-                              src="${item.img}"
-                              class="card-img-top"
-                              alt="..." height="286" width="286" style="object-fit: cover;"
-                            />
-                            <div class="card-body">
-                
-                              <h5 class="card-title">${item.name}</h5>
-                              <p class="card-text">
-                                <div class="price-timestamp-container">
-                                  <s class="text-left">$${item.price.toFixed(
-                                    2
-                                  )}</s>
-                                  <span class="text-right" style="color: red;">$${sale}</span>
-                                </div>
-                              </p>
-                            </div>
-                        </div>
-                          </button>
-                      `;
-            //  <span class="text-right">${getDaysAgo(card.timestamp)}</span>
-            parentE.append(newE);
-            newE.className = "col-12 col-xxl-3 col-xl-4 col-lg-4 col-md-6";
-          }
-        }
-      });
-  </script>
-
   <!-- items -->
   <div class="container">
     <div class="row row-cols-1 row-cols-md-3 g-4" id="list">
@@ -457,10 +281,10 @@
 
   <!-- to details page function -->
   <script>
-    function details(id) {
-      localStorage.setItem("itemIdx", id);
-      window.location.assign("details.html")
-    }
+      function details(id) {
+        localStorage.setItem("itemIdx", id);
+        window.location.assign("details.html")
+      }
   </script>
 
   <!-- Bootstrap -->
