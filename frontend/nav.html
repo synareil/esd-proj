@@ -22,11 +22,35 @@
                     <a id="orders" class="nav-link" href="orders.html">Orders</a>
                 </li>
             </ul>
-            <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
-            </form>
+            <!-- <form class="d-flex" role="search"> -->
+            <!-- <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success" type="submit">Search</button> -->
+            <input type="text" class="form-control" placeholder="What are you looking for?" aria-label="Search"
+                aria-describedby="button-addon2" id="searchinput" />
+            <button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="search()">
+                Search
+            </button><script>
+                    document.getElementById("searchinput")
+                        .addEventListener("keyup", function (event) {
+                            event.preventDefault();
+                            if (event.keyCode === 13) {
+                                document.getElementById("button-addon2").click();
+                            }
+                        });
+                    // search script
+                    function search() {
+                        keyword = document.getElementById("searchinput").value.toLowerCase();
+                        //   if (localStorage.getItem("search") !== null) {
+                        //     localStorage.removeItem("search")
+                        //   }
+                        localStorage.setItem("search", keyword)
+                        window.location.assign(`/search.html`);
+                    }
+            
+            </script>
+            <!-- </form> -->
         </div>
     </div>
 </nav>
+
 <!-- end of navigation bar -->
