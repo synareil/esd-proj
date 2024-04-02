@@ -34,20 +34,21 @@
       })();
 
       document.addEventListener("DOMContentLoaded", (event) => {
-    //   localStorage.setItem("search", "paper clip")  // for testing purposes delete later 
+      localStorage.setItem("search", "garden")  // for testing purposes delete later 
+      localStorage.setItem("userid", "1") // for testing purposes delete later 
       localStorage.setItem("baseURL", "http://localhost:8000")
-      var url = localStorage.baseURL + "/item/search?q=" + localStorage.search
+      var url = localStorage.baseURL + "/search/search?q=" + localStorage.search + "&user_id=" + localStorage.userid
       axios.get(url)
         .then(response => {
-            console.log(response)
-          var data = response.data
-          for (item of data) {
+            console.log(response.data)
+          var searchdata = response.data.search
+          var recommendation = response.data.recommendation
+          for (item of searchdata) {
           console.log(item);
 
           if (item.salesPrice != 0) {
             var parentE = document.getElementById("list");
             var newE = document.createElement("div");
-            var sale = (item.price - item.salesPrice).toFixed(2)
             newE.innerHTML = `
                           <button onclick = "details(${item.itemID})">
                         <div class="card listcard mx-auto" style="width: 18rem">
@@ -64,7 +65,41 @@
                                   <s class="text-left">$${item.price.toFixed(
                                     2
                                   )}</s>
-                                  <span class="text-right" style="color: red;">$${sale}</span>
+                                  <span class="text-right" style="color: red;">$${item.salesPrice.toFixed(2)}</span>
+                                </div>
+                              </p>
+                            </div>
+                        </div>
+                          </button>
+                      `;
+            parentE.append(newE);
+            newE.className = "col-12 col-xxl-3 col-xl-4 col-lg-4 col-md-6";
+           }
+        }
+        
+        for (item of recommendation) {
+          console.log(item);
+
+          if (item.salesPrice != 0) {
+            var parentE = document.getElementById("recommendation");
+            var newE = document.createElement("div");
+            newE.innerHTML = `
+                          <button onclick = "details(${item.itemID})">
+                        <div class="card listcard mx-auto" style="width: 18rem">
+                            <img
+                              src="${item.image}"
+                              class="card-img-top"
+                              alt="..." height="286" width="286" style="object-fit: cover;"
+                            />
+                            <div class="card-body">
+                
+                              <h5 class="card-title">${item.name}</h5>
+                              <p class="card-text">
+                                <div class="price-timestamp-container">
+                                  <s class="text-left">$${item.price.toFixed(
+                                    2
+                                  )}</s>
+                                  <span class="text-right" style="color: red;">$${item.salesPrice.toFixed(2)}</span>
                                 </div>
                               </p>
                             </div>
@@ -82,6 +117,9 @@
     <!-- items -->
     <div class="container">
       <div class="row row-cols-1 row-cols-md-3 g-4" id="list"></div>
+        <br>
+      <h4>We think you will like these:</h4>
+      <div class="row row-cols-1 row-cols-md-3 g-4" id="recommendation"></div>
     </div>
 
       <!-- to details page function -->
