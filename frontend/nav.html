@@ -1,4 +1,6 @@
 <!-- navigation bar -->
+<script src="search.js"></script>
+
 <!-- move the cart and profile to the right and use an icon instead -->
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container">
@@ -29,25 +31,7 @@
                 aria-describedby="button-addon2" id="searchinput" />
             <button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="search()">
                 Search
-            </button><script>
-                    document.getElementById("searchinput")
-                        .addEventListener("keyup", function (event) {
-                            event.preventDefault();
-                            if (event.keyCode === 13) {
-                                document.getElementById("button-addon2").click();
-                            }
-                        });
-                    // search script
-                    function search() {
-                        keyword = document.getElementById("searchinput").value.toLowerCase();
-                        //   if (localStorage.getItem("search") !== null) {
-                        //     localStorage.removeItem("search")
-                        //   }
-                        localStorage.setItem("search", keyword)
-                        window.location.assign(`/search.html`);
-                    }
-            
-            </script>
+            </button>
             <!-- </form> -->
         </div>
     </div>
