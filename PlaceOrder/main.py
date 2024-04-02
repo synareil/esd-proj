@@ -272,7 +272,7 @@ async def finish_checkout(session_id):
     response = Response()
     response.status_code = 303
     response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Location"] = "http://host.docker.internal:8008/index.html"
+    response.headers["Location"] = "http://localhost:8008/success.html"
     return response
 
 @app.get("/cancel", status_code=status.HTTP_200_OK)
@@ -300,6 +300,10 @@ async def cancel_checkout(session_id):
     # Rollback the services
     await rollback_inventory(items)
     await rollback_order(orderID)
-    
 
+    # response = Response()
+    # response.status_code = 200
+    # response.headers["Access-Control-Allow-Origin"] = "*"
+    # response.headers["Location"] = "http://localhost:8008/failure.html"
+    # return response
     
