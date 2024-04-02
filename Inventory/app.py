@@ -1,19 +1,39 @@
+"""
+This is a Flask API for managing items in a database.
+
+Endpoints:
+- GET /item: Retrieves all items from the database.
+- GET /item/<string:itemID>: Retrieves a single item by itemID.
+- POST /item: Creates a new item in the database.
+- PUT /item/<string:itemID>: Updates an existing item by itemID.
+- POST /item/checkout: Processes checkout of items and updates quantities.
+- GET /item/search: Searches for items based on query parameters.
+- POST /item/checkout/rollback: Rolls back checkout and updates item quantities.
+
+"""
+
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from os import environ
 from sqlalchemy.exc import SQLAlchemyError
 from flasgger import Swagger
 
+# Initialize Flask app
 app = Flask(__name__)
+
+# Configure database connection
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize Swagger for API documentation
 swagger = Swagger(app)
+
+# Initialize SQLAlchemy ORM
 db = SQLAlchemy(app)
 
-
+# Define database model for Item
 class Item(db.Model):
     __tablename__ = 'item'
-
 
     itemID = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(100), nullable=False)
@@ -24,9 +44,7 @@ class Item(db.Model):
     salesPrice = db.Column(db.Float(precision=2), nullable=True)
     image = db.Column(db.String(100), nullable=True)
 
-
-    def __init__(self, itemID, name, description, qty, category, price, salesPrice, image):
-        self.itemID = itemID
+    def __init__(self, name, description, qty, category, price, salesPrice=None, image=None):
         self.name = name
         self.description = description
         self.qty = qty
@@ -35,14 +53,16 @@ class Item(db.Model):
         self.salesPrice = salesPrice
         self.image = image
 
-
     def json(self):
-        return {"itemID": self.itemID, "name": self.name, "description": self.description, "qty": self.qty, "category": self.category, "price": self.price, "salesPrice": self.salesPrice, "image":self.image}
+        return {"itemID": self.itemID, "name": self.name, "description": self.description,
+                "qty": self.qty, "category": self.category, "price": self.price,
+                "salesPrice": self.salesPrice, "image": self.image}
 
+# Create database tables based on defined models
 with app.app_context():
     db.create_all()
-    
-# get all items
+
+# Endpoint to retrieve all items
 @app.route('/item', methods=['GET'])
 def get_all():
     """
@@ -54,7 +74,7 @@ def get_all():
         404:
             description: No items found.
     """
-    itemlist = db.session.scalars(db.select(Item)).all()
+    itemlist = Item.query.all()
 
     if True:
         return jsonify(
@@ -125,11 +145,7 @@ def get_item_by_itemID(itemID):
         404:
             description: Item not found.
     """
-    item = db.session.scalars(
-    	db.select(Item).filter_by(itemID=itemID).
-    	limit(1)
-    ).first()
-
+    item = Item.query.filter_by(itemID=itemID).first()
 
     if item:
         return jsonify(
@@ -145,8 +161,7 @@ def get_item_by_itemID(itemID):
         }
     ), 404
 
-
-# create item
+# Endpoint to create a new item
 @app.route("/item", methods=['POST'])
 def create_item():
     """
@@ -181,51 +196,22 @@ def create_item():
     responses:
         201:
             description: Item created successfully.
-        400:
-            description: Invalid input.
         500:
             description: Internal server error.
     """
-    # if (db.session.scalars(
-    #   db.select(Item).filter_by(itemID=itemID).
-    #   limit(1)
-    #   ).first()
-    #   ):
-    #     return jsonify(
-    #         {
-    #             "code": 400,
-    #             "data": {
-    #                 "itemID": itemID
-    #             },
-    #             "message": "Item already exists."
-    #         }
-    #     ), 400
-
-
     data = request.get_json()
-    item = Item(**data, itemID = None)
-
+    item = Item(**data)
 
     try:
         db.session.add(item)
         db.session.commit()
         db.session.refresh(item)
-    except:
-        return jsonify(
-            {
-                "code": 500,
-                "message": "An error occurred creating the item."
-            }
-        ), 500
-    return jsonify(
-        {
-            "code": 201,
-            "data": item.json()
-        }
-    ), 201
+        return jsonify({"code": 201, "data": item.json()}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"code": 500, "message": "An error occurred creating the item: " + str(e)}), 500
 
-
-# update item by itemID
+# Endpoint to update an existing item by itemID
 @app.route("/item/<string:itemID>", methods=['PUT'])
 def update_item(itemID):
     """
@@ -264,118 +250,106 @@ def update_item(itemID):
             description: Internal server error.
     """
     try:
-        item = db.session.scalars(
-        db.select(Item).filter_by(itemID=itemID).
-        limit(1)
-        ).first()
+        item = Item.query.filter_by(itemID=itemID).first()
         if not item:
-            return jsonify(
-                {
-                    "code": 404,
-                    "data": {
-                        "itemID": itemID
-                    },
-                    "message": "Item not found."
-                }
-            ), 404
+            return jsonify({"code": 404, "data": {"itemID": itemID}, "message": "Item not found."}), 404
 
-        # update status
         data = request.get_json()
         if data:
             if 'name' in data:
                 item.name = data['name']
             if 'qty' in data:
                 if int(data['qty']) < 0:
-                    item.qty = item.qty + int(data['qty'])
+                    item.qty += int(data['qty'])
                 else:
                     item.qty = data['qty']
             if 'salesPrice' in data:
                 item.salesPrice = data['salesPrice']
             if 'description' in data:
                 item.description = data['description']
-                
-            db.session.commit()
-            return jsonify(
-                {
-                    "code": 200,
-                    "data": item.json()
-                }
-            ), 200
-    except Exception as e:
-        return jsonify(
-            {
-                "code": 500,
-                "data": {
-                    "itemID": itemID
-                },
-                "message": "An error occurred while updating the item. " + str(e) 
-            }
-        ), 500
 
-# update item by itemID
+            db.session.commit()
+            return jsonify({"code": 200, "data": item.json()}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"code": 500, "data": {"itemID": itemID},
+                        "message": "An error occurred while updating the item: " + str(e)}), 500
+
+# Endpoint to process checkout of items and update quantities
 @app.route("/item/checkout", methods=['POST'])
 def checkout_items():
+    """
+    Processes checkout of items and updates quantities.
+    ---
+    parameters:
+      - in: body
+        name: checkout
+        description: List of items to checkout.
+        schema:
+          type: object
+          properties:
+            checkout:
+              type: array
+              items:
+                type: object
+                properties:
+                  itemID:
+                    type: integer
+                  quantity:
+                    type: integer
+    responses:
+        200:
+            description: Checkout successful.
+        404:
+            description: Item not found.
+        422:
+            description: Item out of stock.
+    """
     data = request.get_json()
     if data:
         try:
             totalPrice = 0
-            for item_checkout in data["checkout"]:
-                itemID = int(item_checkout.get("itemID"))
+            for item_checkout in data.get("checkout", []):
+                itemID = item_checkout.get("itemID")
                 quantity = item_checkout.get("quantity")
-                
-                item = db.session.scalars(
-                db.select(Item).filter(Item.itemID==itemID).
-                limit(1)
-                ).first()
-                
-                
-                if item.salesPrice:
-                    totalPrice += item.salesPrice
-                else:
-                    totalPrice += item.price
-                    
+
+                item = Item.query.filter_by(itemID=itemID).first()
                 if not item:
-                    return jsonify(
-                        {
-                            "code": 404,
-                            "data": {
-                                "itemID": itemID
-                            },
-                            "message": "Item not found."
-                        }
-                    ), 404
-                    
-                item.qty = item.qty - quantity
+                    return jsonify({"code": 404, "data": {"itemID": itemID}, "message": "Item not found."}), 404
+
+                totalPrice += item.salesPrice if item.salesPrice else item.price
+
+                item.qty -= quantity
                 if item.qty < 0:
                     db.session.rollback()
-                    return jsonify(
-                        {
-                            "code": 422,
-                            "data": {
-                                "itemID": itemID,
-                                "quantity": item.qty + quantity,
-                                "requestedQuantity": quantity
-                            },
-                            "message": "Item out of stock"
-                        }
-                    ), 422
+                    return jsonify({"code": 422, "data": {"itemID": itemID, "quantity": item.qty + quantity,
+                                                           "requestedQuantity": quantity}, "message": "Item out of stock"}), 422
+
             db.session.commit()
-            return jsonify(
-                        {
-                            "code": 200,
-                            "data": {
-                                "totalPrice": totalPrice
-                            }
-                        }
-                    ), 200
-        
-        
-        except SQLAlchemyError as e:
+            return jsonify({"code": 200, "data": {"totalPrice": totalPrice}}), 200
+        except Exception as e:
             db.session.rollback()
- 
-#search
+            return jsonify({"code": 500, "message": "An error occurred while processing checkout: " + str(e)}), 500
+    return jsonify({"code": 400, "message": "No data provided for checkout."}), 400
+
+# Endpoint to search for items based on query parameters
 @app.route('/item/search')
 def search():
+    """
+    Searches for items based on query parameters.
+    ---
+    parameters:
+      - name: q
+        in: query
+        type: string
+        required: true
+        description: The search query.
+    responses:
+        200:
+            description: A list of items matching the search query.
+        400:
+            description: No search query provided.
+    """
     query = request.args.get('q')
     if query:
         words = query.split(" ")
@@ -391,56 +365,61 @@ def search():
         return jsonify([item.json() for item in items_return])
     else:
         return jsonify([]), 400
-               
-# rollback for checkout
+
+# Endpoint to rollback checkout and update item quantities
 @app.route("/item/checkout/rollback", methods=['POST'])
 def rollback_checkout_items():
+    """
+    Rolls back checkout and updates item quantities.
+    ---
+    parameters:
+      - in: body
+        name: checkout
+        description: List of items to rollback.
+        schema:
+          type: object
+          properties:
+            checkout:
+              type: array
+              items:
+                type: object
+                properties:
+                  itemID:
+                    type: integer
+                  quantity:
+                    type: integer
+    responses:
+        202:
+            description: Checkout rollback successful.
+        404:
+            description: Item not found.
+        422:
+            description: Invalid rollback request.
+    """
     data = request.get_json()
     if data:
         try:
-            for item_checkout in data["checkout"]:
-                itemID = int(item_checkout["itemID"])
+            for item_checkout in data.get("checkout", []):
+                itemID = item_checkout["itemID"]
                 quantity = item_checkout["quantity"]
-                
-                item = db.session.scalars(
-                db.select(Item).filter(Item.itemID==itemID).
-                limit(1)
-                ).first()
+
+                item = Item.query.filter_by(itemID=itemID).first()
                 if not item:
-                    return jsonify(
-                        {
-                            "code": 404,
-                            "data": {
-                                "itemID": itemID
-                            },
-                            "message": "Item not found."
-                        }
-                    ), 404
-                    
-                item.qty = item.qty + quantity
+                    return jsonify({"code": 404, "data": {"itemID": itemID}, "message": "Item not found."}), 404
+
+                item.qty += quantity
                 if item.qty < 0:
                     db.session.rollback()
-                    return jsonify(
-                        {
-                            "code": 422,
-                            "data": {
-                                "itemID": itemID,
-                                "quantity": item.qty + quantity,
-                                "requestedQuantity": quantity
-                            },
-                            "message": "Item out of stock"
-                        }
-                    ), 422
-            db.session.commit()
-            return jsonify(
-                {
-                    "code": 202,
-                }
-            )
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            
-                
+                    return jsonify({"code": 422, "data": {"itemID": itemID, "quantity": item.qty + quantity,
+                                                           "requestedQuantity": quantity},
+                                    "message": "Invalid rollback request."}), 422
 
+            db.session.commit()
+            return jsonify({"code": 202}), 202
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"code": 500, "message": "An error occurred while rolling back checkout: " + str(e)}), 500
+
+# Run the Flask app
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
