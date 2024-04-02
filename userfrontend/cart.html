@@ -46,7 +46,7 @@
 
               <!--Items in the shopping cart-->
               <div v-if="shoppingItems.length === 0">
-                No items in the cart.
+                No items in the cart OR please be patient as we are loading your data.
               </div>
 
               <div v-else>
@@ -70,9 +70,9 @@
                               <h6 class="mb-0">Quantity: </h6>
                               <div class="cart-item">
                                 <div class="item-quantity mx-2">
-                                  <button @click="decrementQuantity(index)">-</button>
-                                  <span>{{item.quantity }}</span>
-                                  <button @click="incrementQuantity(index)">+</button>
+                                  <button @click="decrementQuantity(index)" :disabled="buttonDisabled">-</button>
+                                  <span>{{item.new_quantity }}</span>
+                                  <button @click="incrementQuantity(index)" :disabled="buttonDisabled">+</button>
                                 </div>
                               </div>
                             </div>
@@ -80,21 +80,22 @@
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
                           <div>
-                            <a @click="removeitem(index)" type="button" class="card-link-secondary small text-uppercase mr-3">
+                            <a @click="removeitem(index)" type="button" class="card-link-secondary small text-uppercase text-danger mr-3" style="font-weight:bold;">
                               <i class="fas fa-trash-alt mr-1">Remove item </i> 
                             </a>
                           </div>
                           <p v-if="item.salesPrice > 0" class="mb-0 mr-2">
-                            <span>
-                              <s>${{item.price}}</s>
-                            </span>
-                            <span>
-                              <strong class='text-danger'>${{item.salesPrice }}</strong>
-                            </span>
+                            <span><s>${{item.price}}</s></span>
+                            <span><strong class='text-danger'>${{item.salesPrice }}</strong></span>
                           </p>
                           <p v-else-if="item.salesPrice == 0" class="mb-0 mr-2"><span><strong>${{item.price }}</strong></span></p>
                         </div>
                       </div>
+                      <!-- <div class="d-flex justify-content-end mt-5">
+                          <button @click="updatecart(index)" type="button" class="btn btn-primary small text-uppercase mr-3">
+                              Save Any Changes for this item
+                          </button>
+                      </div> -->
                     </div>
                     <hr class="mt-2" style="color:rgb(146, 103, 255)">
                   </div>
@@ -192,6 +193,8 @@
         fullName: '',
         address: '',
         location: '',
+        buttonDisabled: false,
+        cooldown: false, // Flag to track cooldown state
       },
       created() {
         this.loadItems();
@@ -213,6 +216,7 @@
                     var item = response.data.data;
                     delete item.qty;
                     item.quantity = cartItem.quantity;
+                    item.new_quantity = cartItem.quantity;
                     return item;
                   });
               });
@@ -231,18 +235,114 @@
             });
         },
         decrementQuantity(index) {
-          if (this.shoppingItems[index].quantity > 1) {
-            this.shoppingItems[index].quantity--;
-            this.calculateTotals();
+          if (!this.cooldown && this.shoppingItems[index].new_quantity >= 1) {
+            
+            // Disable the button to prevent multiple clicks
+            this.buttonDisabled = true;
+            this.cooldown = true; // Set cooldown flag
+
+            this.shoppingItems[index].new_quantity--;
+            var cart_url = localStorage.baseURL + "/cart" + "/1";
+            var itemID = this.shoppingItems[index].itemID;
+            var new_quantity = this.shoppingItems[index].new_quantity;
+            var quantity = this.shoppingItems[index].quantity;
+
+            if(this.shoppingItems[index].new_quantity == 0){
+              removeitem(index);
+            }
+
+            console.log("itemID:", itemID, "original quantity: ", quantity, "new quantity: ", new_quantity);
+            var remove_quantity = (quantity - new_quantity);
+            console.log("quantity to remove is: ", remove_quantity)
+
+            axios.put(cart_url, {
+              "deleteItem": [
+                {"itemID": itemID,
+                "quantity": remove_quantity}
+              ]
+            })
+            .then(response => {
+              console.log(response.data);
+              this.calculateTotals();
+            })
+            .catch(error => {
+              console.log(error);
+              alert("Something went wrong. Please try again!");
+            })
+            .finally(() => {
+              // Enable the button after a delay
+              setTimeout(() => {
+                this.buttonDisabled = false;
+                this.cooldown = false; // Reset cooldown flag
+              }, 1000); // Adjust the delay as needed
+            });
           }
         },
         incrementQuantity(index) {
-          this.shoppingItems[index].quantity++;
-          this.calculateTotals();
+          if (!this.cooldown) {
+            this.buttonDisabled = true;
+            this.cooldown = true; // Set cooldown flag
+
+            this.shoppingItems[index].new_quantity++;
+            var cart_url = localStorage.baseURL + "/cart" + "/1";
+            var itemID = this.shoppingItems[index].itemID;
+            var quantity = this.shoppingItems[index].quantity;
+            var new_quantity = this.shoppingItems[index].new_quantity;
+
+            console.log("itemID:", itemID, "original quantity: ", quantity, "new quantity: ", new_quantity);
+            var add_quantity = (new_quantity - quantity);
+            console.log("quantity to add is: ", add_quantity)
+
+            axios.put(cart_url, {
+              "addItem": [
+                {"itemID": itemID,
+                "quantity": add_quantity}
+              ]
+            })
+            .then(response => {
+              console.log(response.data);
+              this.calculateTotals();              
+            })
+            .catch(error => {
+              console.log(error);
+              alert("Something went wrong. Please try again!");
+            })
+            .finally(() => {
+              // Enable the button after a delay
+              setTimeout(() => {
+                this.buttonDisabled = false;
+                this.cooldown = false; // Reset cooldown flag
+              }, 1000); // Adjust the delay as needed
+            });
+          }
         },
+
         removeitem(index){
-          this.shoppingItems.splice(index, 1);
-          this.calculateTotals();
+          var cart_url = localStorage.baseURL + "/cart" + "/1";
+
+          var itemID = this.shoppingItems[index].itemID;
+          var quantity = this.shoppingItems[index].quantity;
+          console.log("itemID: " + itemID + " quantity: " + quantity);
+
+          axios.put(cart_url, {
+            "deleteItem": [
+              {"itemID": itemID,
+              "quantity": quantity}
+            ]
+          })
+          .then(response => {
+            console.log(response.data);
+            this.shoppingItems.splice(index, 1);
+            this.calculateTotals();
+            alert("You have successfully removed the item from your cart.");
+            location.reload();
+          })
+          .catch(error => {
+            console.log(error);
+            alert("You have failed to remove the item from your cart. Try again");
+            // location.reload();
+          });
+          
         },
         calculateTotals() {
           var items = this.shoppingItems;
@@ -251,20 +351,20 @@
           this.total_price = 0;
 
           for (item of items){
-            console.log(item);
-            this.total_price += item.price * item.quantity;
+            // console.log(item);
+            this.total_price += item.price * item.new_quantity;
 
             if (item.salesPrice > 0){
-              this.total_sales += (item.price - item.salesPrice )* item.quantity;
-              this.total_payment_price += item.salesPrice * item.quantity;
+              this.total_sales += (item.price - item.salesPrice )* item.new_quantity;
+              this.total_payment_price += item.salesPrice * item.new_quantity;
             }
             else if (item.salesPrice = 0){
-              this.total_payment_price += item.price * item.quantity;
+              this.total_payment_price += item.price * item.new_quantity;
             }
             this.total_price
           }
-          console.log("mao");
-          console.log("items are heree: " + this.shoppingItems);
+          // console.log("mao");
+          // console.log("items are heree: " + this.shoppingItems);
         },
         checkout() {
           //place order by sending the shipping address
@@ -284,10 +384,8 @@
             .catch(error => {
               console.log(error);
             });
-        }
         },
-        updatecart(){
-          
+        
         }
     });
   </script>
