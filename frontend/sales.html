@@ -10,6 +10,7 @@
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   </head>
 
   <body>
@@ -33,103 +34,16 @@
       })();
 
       document.addEventListener("DOMContentLoaded", (event) => {
-        var data = [
-          {
-            itemID: 1,
-            name: "item4",
-            description: "This is item #4",
-            qty: 3,
-            price: 100.0,
-            salesPrice: 1.0,
-            img: "assets/img/littlefuzzyss.jpg",
-          },
-          {
-            itemID: 4,
-            name: "item4",
-            description: "This is item #4",
-            qty: 3,
-            price: 100.0,
-            salesPrice: 3.0,
-            img: "assets/img/littlefuzzyss.jpg",
-          },
-          {
-            itemID: 4,
-            name: "item4",
-            description: "This is item #4",
-            qty: 3,
-            price: 100.0,
-            salesPrice: 6.0,
-            img: "assets/img/littlefuzzyss.jpg",
-          },
-          {
-            itemID: 4,
-            name: "item4",
-            description: "This is item #4",
-            qty: 3,
-            price: 100.0,
-            salesPrice: 3.0,
-            img: "assets/img/littlefuzzyss.jpg",
-          },
-          {
-            itemID: 4,
-            name: "item4",
-            description: "This is item #4",
-            qty: 3,
-            price: 100.0,
-            salesPrice: 1,
-            img: "assets/img/littlefuzzyss.jpg",
-          },
-          {
-            itemID: 4,
-            name: "item4",
-            description: "This is item #4",
-            qty: 3,
-            price: 100.0,
-            salesPrice: 20,
-            img: "assets/img/littlefuzzyss.jpg",
-          },
-          {
-            itemID: 4,
-            name: "item4",
-            description: "This is item #4",
-            qty: 3,
-            price: 100.0,
-            salesPrice: 10,
-            img: "assets/img/littlefuzzyss.jpg",
-          },
-        ];
-        for (item of data) {
+        
+      localStorage.setItem("baseURL", "http://localhost:8000")
+      var url = localStorage.baseURL + "/item"
+      axios.get(url)
+        .then(response => {
+          var data = response.data.data.items
+          for (item of data) {
           console.log(item);
 
-          if (item.salesPrice == 0) {
-            var parentE = document.getElementById("list");
-            var newE = document.createElement("div");
-            newE.innerHTML = `
-                          <button>
-                        <div class="card listcard mx-auto" style="width: 18rem">
-                            <img
-                              src="${item.img}"
-                              class="card-img-top"
-                              alt="..." height="286" width="286" style="object-fit: cover;"
-                            />
-                            <div class="card-body">
-                
-                              <h5 class="card-title">${item.name}</h5>
-                              <p class="card-text">
-                                <div class="price-timestamp-container">
-                                  <span class="text-left">$${item.price.toFixed(
-                                    2
-                                  )}</span>
-                                </div>
-                              </p>
-                            </div>
-                        </div>
-                          </button>
-                      `;
-            //  <span class="text-right">${getDaysAgo(card.timestamp)}</span>
-            parentE.append(newE);
-            newE.className = "col-12 col-xxl-3 col-xl-4 col-lg-4 col-md-6";
-          } else {
+          if (item.salesPrice != 0) {
             var parentE = document.getElementById("list");
             var newE = document.createElement("div");
             var sale = (item.price - item.salesPrice).toFixed(2)
@@ -137,7 +51,7 @@
                           <button>
                         <div class="card listcard mx-auto" style="width: 18rem">
                             <img
-                              src="${item.img}"
+                              src="${item.image}"
                               class="card-img-top"
                               alt="..." height="286" width="286" style="object-fit: cover;"
                             />
@@ -156,12 +70,12 @@
                         </div>
                           </button>
                       `;
-            //  <span class="text-right">${getDaysAgo(card.timestamp)}</span>
             parentE.append(newE);
             newE.className = "col-12 col-xxl-3 col-xl-4 col-lg-4 col-md-6";
-          }
+           }
         }
       });
+    });
     </script>
 
     <!-- items -->
