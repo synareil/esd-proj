@@ -60,18 +60,16 @@ def get_cart():
         )
 
 
-#get cart by userID
+#get_item_in_cart_by_userID
 @app.route("/cart/<string:userID>")
 def get_item_in_cart_by_userID(userID):
     cart = db.session.query(Cart).filter(Cart.userID == userID).filter(Cart.active == True).first()
 
-    if cart == None:   
-        return jsonify(
-            {
-                "code": 404,
-                "message": "Cart not found."
-            }
-        ), 404
+    if not cart:
+        cart = Cart(None, userID, active=True)
+        db.session.add(cart)
+        db.session.flush()
+        db.session.refresh(cart)
         
     cart_items = db.session.query(CartItem).filter(CartItem.cartID == cart.cartID).all()
     cart_items_list = [item.json() for item in cart_items]
@@ -82,7 +80,7 @@ def get_item_in_cart_by_userID(userID):
             }
         ), 202
     
-#get cart by itemID
+#get_users_with_itemID_in_active_cart
 @app.route("/cart/item/<string:itemID>")
 def get_users_with_itemID_in_active_cart(itemID):
     carts = db.session.query(CartItem).filter(CartItem.itemID == itemID).all()
@@ -102,7 +100,39 @@ def get_users_with_itemID_in_active_cart(itemID):
             }
         ), 202
     
-
+# closecart
+@app.route("/cart/close/<string:userID>", methods=["POST"])
+def close_cart(userID):
+    try:
+        # Find the cart for the given userID
+        cart = Cart.query.filter_by(userID=userID).filter_by(active=True).first()
+        if not cart:
+            return jsonify(
+                {
+                    "code": 404,
+                    "message": "Cart not found."
+                }
+            ), 404
+            
+        cart.active = False
+        db.session.commit()
+        return jsonify(
+                {
+                    "code": 204,
+                    "message": "No Content"
+                }
+            ), 204
+    except Exception as e:
+        return jsonify(
+            {
+                "code": 500, 
+                "message": "An error occurred while updating the cart.", 
+                "error": str(e)
+            }
+        ), 500
+            
+    
+    
 # update or delete item in cart by userID
 @app.route("/cart/<string:userID>", methods=["PUT"])
 def update_cart(userID):

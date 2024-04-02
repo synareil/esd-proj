@@ -64,7 +64,7 @@ def get_all():
                     "items": [item.json() for item in itemlist]
                 }
             }
-        )
+        ), 200
     return jsonify(
         {
             "code": 404,
@@ -72,6 +72,41 @@ def get_all():
         }
     ), 404
 
+# get items by category
+@app.route("/item/", methods=['GET'])
+def get_item_by_category():
+    # Get the category from the query string
+    category = request.args.get('category', default=None, type=str)
+    
+    if category is None:
+        return jsonify({"error": "Category parameter is missing"}), 400
+
+    # Query the database for items in the specified category
+    items = Item.query.filter_by(category=category).all()
+    
+    # If no items found, return a meaningful message
+    if not items:
+        return jsonify(
+            {
+                "code": 404,
+                "message": "No items found in the specified category",
+                "data": []
+            }
+        ), 404
+
+    # Convert the query results to a list of dictionaries for JSON serialization
+    items_list = [item.json() for item in items]
+
+    # Return the items as a JSON response
+    return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "items": items_list
+                }
+            }
+        ), 200
+    
 # get item by itemID
 @app.route("/item/<string:itemID>", methods=['GET'])
 def get_item_by_itemID(itemID):
@@ -102,7 +137,7 @@ def get_item_by_itemID(itemID):
                 "code": 200,
                 "data": item.json()
             }
-        )
+        ), 200
     return jsonify(
         {
             "code": 404,
@@ -343,12 +378,17 @@ def checkout_items():
 def search():
     query = request.args.get('q')
     if query:
-        items = Item.query.filter(
-            (Item.name.like(f'%{query}%')) | 
-            (Item.description.like(f'%{query}%')) | 
-            (Item.category.like(f'%{query}%'))
-        ).all()
-        return jsonify([item.json() for item in items])
+        words = query.split(" ")
+        items_return = set()
+        for word in words:
+            items = Item.query.filter(
+                (Item.name.like(f'%{word}%')) | 
+                (Item.description.like(f'%{word}%')) | 
+                (Item.category.like(f'%{word}%'))
+            ).all()
+            items = set(items)
+            items_return.update(items)
+        return jsonify([item.json() for item in items_return])
     else:
         return jsonify([]), 400
                

@@ -26,3 +26,5 @@ Register-ServiceAndRoute -serviceName "inventory" -serviceUrl "http://inventory:
 Register-ServiceAndRoute -serviceName "marketing-content" -serviceUrl "http://marketing-content:80/" -routePaths "/marketing-content"
 Register-ServiceAndRoute -serviceName "placeorder" -serviceUrl "http://placeorder:80/" -routePaths "/placeorder"
 Register-ServiceAndRoute -serviceName "manageproduct" -serviceUrl "http://manageproduct:80/" -routePaths "/manageproduct"
+Register-ServiceAndRoute -serviceName "search" -serviceUrl "http://search:80/" -routePaths "/search"
+Register-ServiceAndRoute -serviceName "recommendation" -serviceUrl "http://recommendation:80/" -routePaths "/recommendation"

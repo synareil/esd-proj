@@ -1,6 +1,41 @@
 version: '3.8'
 
 services:
+  recommendation: 
+    container_name: recommendation
+    build: ./recommendation/.
+    restart: on-failure
+    volumes:
+      - ./recommendation/.:/usr/src/app
+    ports:
+      - "5014:80"
+    depends_on:
+      - inventory
+      - rabbitmq
+    networks:
+      - app_network
+    env_file:
+      - ./env_files/rabbitmq.env
+    command: uvicorn main:app --host 0.0.0.0 --port 80 --reload
+
+  search:
+    container_name: search
+    build: ./search/.
+    restart: on-failure
+    volumes:
+      - ./search/.:/usr/src/app
+    ports:
+      - "5013:80"
+    depends_on:
+      - inventory
+      - cart
+      - recommendation
+      - rabbitmq
+    networks:
+      - app_network
+    env_file:
+      - ./env_files/rabbitmq.env
+    command: uvicorn main:app --host 0.0.0.0 --port 80 --reload
 
   error-log:
     build: ./errorlog2/.

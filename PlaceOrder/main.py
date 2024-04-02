@@ -131,7 +131,7 @@ async def call_service_with_retry(method: str, url: str, retries: int = 3, backo
         try:
             return await client.request(method, url, **kwargs)
         except (httpx.RequestError):
-            return CustomResponse(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, text="Unable to reach the microservice")
+            return Response(status_code=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 @app.get("/health", status_code=status.HTTP_200_OK)
 async def check_health():
@@ -250,10 +250,16 @@ async def finish_checkout(session_id):
     if shipping_response.status_code != 201:
         message = {'message':"Shipping service failed. " + shipping_response.text, 'source':"PlaceOrder"}
         send_to_rabbitmq(message)
-        await rollback_inventory(items)
-        await rollback_order(orderID)
         raise HTTPException(status_code=shipping_response.status_code, detail="Shipping service failed")
     
+    # Close the cart
+    url= f"{CART_BASEURL}/close/{user_id}"
+    cart_response = await call_service_with_retry(method = "POST", url=url)
+    
+    if cart_response.status_code != 204:
+        message = {'message':"Cart service failed. " + cart_response.text, 'source':"PlaceOrder"}
+        send_to_rabbitmq(message)
+        raise HTTPException(status_code=cart_response.status_code, detail="Cart service failed")
 
 @app.get("/cancel", status_code=status.HTTP_200_OK)
 async def cancel_checkout(session_id):
