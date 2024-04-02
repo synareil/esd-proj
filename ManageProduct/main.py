@@ -123,8 +123,10 @@ async def add_item(salesRequest: SalesRequest):
         inventory_response = await call_service_with_retry(method = "PUT", url=url, json=payload)  
         responseItem = inventory_response.json()["data"]
         
+        image = responseItem["image"]
+        image = image[:-1:]
         itemModel = {"name": responseItem["name"],
-                     "image": responseItem["image"],
+                     "image": image,
                      "oldPrice": f"{responseItem["price"]:.2f}",
                      "price": f"{responseItem["salesPrice"]:.2f}"}
         items[str(itemID)] = itemModel
@@ -157,6 +159,8 @@ async def add_item(salesRequest: SalesRequest):
     payload = {"title": salesRequest.title,
                "items": items,
                "userItem": user_item}
+    
+    print(payload)
     
     marketing_response = await call_service_with_retry(method = "POST", url=url, json=payload)    
     if marketing_response.status_code != 201:
