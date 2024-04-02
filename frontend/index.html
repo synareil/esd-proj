@@ -10,6 +10,22 @@
 </head>
 
 <body>
+  <script>
+    localStorage.baseURL = "http://localhost:8000"
+    fetch(localStorage.baseURL + "/item")
+        .then(response => response.json())
+        .then(data => {
+            console.log(response);
+            if (data.code === 404) {
+                console.log(data.message);
+            } else {
+                console.log(data.data);
+            }
+        })
+        .catch(error => {
+            console.log(error);
+        });
+  </script>
   <div id="nav-placeholder"></div>
 
   <!-- categories -->
