@@ -222,17 +222,17 @@
         removeitem(index){
           console.log(this.shoppingItems);
           this.shoppingItems.splice(index, 1);
+          this.calculateTotals();
         },
         calculateTotals() {
           this.total_price = this.shoppingItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
           this.total_sales = this.shoppingItems.reduce((acc, item) => acc + (item.salesPrice * item.qty), 0);
           this.total_payment_price = this.total_price - this.total_sales;
         },
-        checkout(){
-
-          //send items in cart and prep the request format to send to API gateway
-          var shoppingItems = this.shoppingItems;
-          alert(shoppingItems); 
+        checkout() {
+          window.location.href = "shipping.html";
+          //send_data()
+          //send the order to order db here and once done -> redirect to shipping.html
         }
       }
     });
