@@ -128,7 +128,12 @@
                 stock.innerText = item.qty;
 
                 var price = document.getElementById('price');
-                price.innerText = item.price;
+                if (item.salesPrice != 0){
+                    price.innerHTML = "<s>$"+item.price+"</s>"+"<span style='color:red;font-weight:bold'> $"+item.salesPrice+"</span>";
+                }
+                else{
+                    price.innerText = "$"+item.price;
+                }
 
                 var qty = document.getElementById('qty');
                 qty.innerText = item.qty;
@@ -138,8 +143,22 @@
         var addToCartButton = document.getElementById('addtocart');
         // Add the event listener
         addToCartButton.addEventListener('click', function () {
-            // Call your function here
-            alert("add to cart");
+            var cart_url = localStorage.baseURL + "/cart/" + '1';
+            //axios put to the url
+            axios.put(cart_url, {
+                "addItem": [
+                    {"itemID":localStorage.itemIdx,
+                    "quantity":1},
+                ]
+            })
+                .then(response => {
+                    console.log(response.data);
+                    console.log("SUCCESS");
+                })
+                .catch( error => {
+                    console.error(error);
+                    console.log("FAILURE");
+                });
         });
     })
 </script>
