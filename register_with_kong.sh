@@ -186,7 +186,7 @@ curl -i -X POST http://localhost:8001/services/search/plugins \
     --data "config.credentials=true" \
     --data "config.max_age=3600"
 
-curl -i -X POST http://localhost:8001/services/recommendation/plugin`s \
+curl -i -X POST http://localhost:8001/services/recommendation/plugins \
     --data "name=cors" \
     --data "config.origins=*" \
     --data "config.headers=Accept, Authorization, Content-Type" \
