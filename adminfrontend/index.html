@@ -1,201 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="search.js"></script>
+  </head>
+  <body>
+    <div id="nav-placeholder"></div>
+    <script>
+      document.addEventListener("DOMContentLoaded", (event) => {
+        (async function () {
+          const response = await fetch("./nav.html");
+          const data = await response.text();
+          document.getElementById("nav-placeholder").innerHTML = data;
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script src="search.js"></script>
-</head>
-<body>
-  <div id="nav-placeholder"></div>
+          // Get the filename of the current page
+          const page = window.location.pathname.split("/").pop().split(".")[0];
 
-  <!-- categories -->
-  <!-- add images in the categories something like etsy: 
-      https://www.etsy.com/?zanpid=10690_1708442261_d507439316f091679458a6018eeeb3b8&utm_medium=affiliate&utm_source
-      =affiliate_window&utm_campaign=row_buyer&utm_content=937449&sv1=affiliate&sv_campaign_id=937449&utm_term=0&awc=10690_1708442261_
-      d507439316f091679458a6018eeeb3b8&gad_source=1&gclid=Cj0KCQjwhtWvBhD9ARIsAOP0GoglCxg7aia-xixxOinbYeH_zl_uI_HK5aJICLPg1DfMAT8xaicWb
-      MgaAkZuEALw_wcB -->
-  <!-- <div class="container">
-    <br />
-    <div class="row justify-content-center">
-      <div class="col-lg-2 col-md-3 col-sm-3 col-6 text-center">
-        <button onclick="" class="cta-button btn btn-outline-secondary">
-          Clothes
-        </button>
-      </div>
-      <div class="col-lg-2 col-md-3 col-sm-3 col-6 text-center">
-        <button onclick="" class="cta-button btn btn-outline-secondary">
-          Accessories
-        </button>
-      </div>
-      <div class="col-lg-2 col-md-3 col-sm-3 col-6 text-center">
-        <button onclick="" class="cta-button btn btn-outline-secondary">
-          Shoes
-        </button>
-      </div>
-      <div class="col-lg-2 col-md-3 col-sm-3 col-6 text-center">
-        <button onclick="" class="cta-button btn btn-outline-secondary">
-          Shoes
-        </button>
-      </div>
-      <div class="col-lg-2 col-md-3 col-sm-3 col-6 text-center">
-        <button onclick="" class="cta-button btn btn-outline-secondary">
-          Bag
-        </button>
-      </div>
-    </div>
-  </div> 
-  <br>-->
+          // Get the nav link element that corresponds to the current page
+          const link = document.getElementById(page);
 
-  <script>
-    
-    document.addEventListener("DOMContentLoaded", (event) => {
+          // Add the 'active' class to the nav link
+          if (link) link.classList.add("active");
+        })();
 
-      (async function () {
-      const response = await fetch('./nav.html');
-      const data = await response.text();
-      document.getElementById('nav-placeholder').innerHTML = data;
-
-      // Get the filename of the current page
-      const page = window.location.pathname.split("/").pop().split(".")[0];
-
-      // Get the nav link element that corresponds to the current page
-      const link = document.getElementById(page);
-
-      // Add the 'active' class to the nav link
-      if (link) link.classList.add("active");
-    })();
-
-
-      // carousel / slider script
-      localStorage.setItem("baseURL", "http://localhost:8000")
-      var url = localStorage.baseURL + "/item"
-      axios.get(url)
-        .then(response => {
-          var data = response.data.data.items
-          for (item of data) {
-            console.log(item.image)
-            if (item.salesPrice == 0) {
-              var parentE = document.getElementById("carousel");
-              var newE = document.createElement("div");
-              newE.innerHTML = `
-                  <button onclick = "details(${item.itemID})">
-                        <div class="card" style="width: 18rem">
-                            <img
-                              src="${item.image}"
-                              class="card-img-top"
-                              alt="..." height="286" width="286" style="object-fit: cover;"
-                            />
-                            <div class="card-body">
-
-                              <h5 class="card-title">${item.name}</h5>
-                              <p class="card-text">
-                                <div class="price-timestamp-container">
-                                  <span class="text-left">$${item.price.toFixed(2)}</span>
-                                </div>
-                                
-                              </p>
-                            </div>
-                        </div>
-                          </button>
-                        `;
-              parentE.append(newE);
-            } else {
-              var parentE = document.getElementById("carousel");
-              var newE = document.createElement("div");
-              newE.innerHTML = `
-                  <button onclick = "details(${item.itemID})">
-                        <div class="card" style="width: 18rem">
-                            <img
-                              src="${item.image}"
-                              class="card-img-top"
-                              alt="..." height="286" width="286" style="object-fit: cover;"
-                            />
-                            <div class="card-body">
-
-                              <h5 class="card-title">${item.name}</h5>
-                              <p class="card-text">
-                                <div class="price-timestamp-container">
-                                  <s class="text-left">$${item.price.toFixed(2)}</s>
-                                  <span class="text-right" style="color: red;">$${item.salesPrice.toFixed(2)}</span>
-                                </div>
-                                
-                              </p>
-                            </div>
-                        </div>
-                          </button>
-                        `;
-              //  <span class="text-right">${getDaysAgo(card.timestamp)}</span>
-              parentE.append(newE);
-            }
-          }
-        })
-
-      // Button Script          
-      const prevButton1 = document.querySelector("#prev1");
-      const nextButton1 = document.querySelector("#next1");
-      const content1 = document.querySelector("#swiper1");
-      const swiper1 = document.querySelector("#carousel");
-      prevButton1.style.opacity = 0
-      nextButton1.style.opacity = 0
-
-      let scrollPosition1 = 0;
-      const representativeItem1 = document.querySelector("#swiper1");
-      const itemWidth1 = content1.clientWidth;
-      const totalWidth1 = content1.scrollWidth - content1.clientWidth;
-
-      setTimeout(() => {
-        const totalWidth1 = content1.scrollWidth - content1.clientWidth;
-        prevButton1.addEventListener("click", () => {
-          scrollPosition1 -= itemWidth1;
-          if (scrollPosition1 < 0) {
-            scrollPosition1 = 0;
-          }
-          swiper1.style.transform = `translateX(-${scrollPosition1}px)`;
-          updateButtonVisibility1();
-        });
-
-        nextButton1.addEventListener("click", () => {
-          scrollPosition1 += itemWidth1;
-          if (scrollPosition1 > totalWidth1) {
-            scrollPosition1 = totalWidth1;
-          }
-          swiper1.style.transform = `translateX(-${scrollPosition1}px)`;
-          updateButtonVisibility1();
-        });
-
-        function updateButtonVisibility1() {
-          if (scrollPosition1 !== 0) {
-            prevButton1.style.opacity = 100
-          } else {
-            prevButton1.style.opacity = 0
-          }
-          if (scrollPosition1 !== totalWidth1) {
-            nextButton1.style.opacity = 100
-          } else {
-            nextButton1.style.opacity = 0
-          }
-        }
-
-        updateButtonVisibility1();
-      }, 1000);
-
-
-      // item scripts
-      var url = localStorage.baseURL + "/item"
-      axios.get(url)
-        .then(response => {
-          var data = response.data.data.items
+        // item scripts
+        var url = localStorage.baseURL + "/item";
+        axios.get(url).then((response) => {
+          var data = response.data.data.items;
           for (item of data) {
             if (item.salesPrice == 0) {
               var parentE = document.getElementById("list");
               var newE = document.createElement("div");
               newE.innerHTML = `
-                          <button onclick = "details(${item.itemID})">
                         <div class="card listcard mx-auto" style="width: 18rem">
                             <img
                               src="${item.image}"
@@ -208,22 +53,22 @@
                               <p class="card-text">
                                 <div class="price-timestamp-container">
                                   <span class="text-left">$${item.price.toFixed(
-                2
-              )}</span>
+                                    2
+                                  )}</span>
                                 </div>
                               </p>
+                              <div class="edit">
+                                <input id="item${item.itemID}" type="text">
+                                </div>
                             </div>
                         </div>
-                          </button>
                       `;
-              //  <span class="text-right">${getDaysAgo(card.timestamp)}</span>
               parentE.append(newE);
               newE.className = "col-12 col-xxl-3 col-xl-4 col-lg-4 col-md-6";
             } else {
               var parentE = document.getElementById("list");
               var newE = document.createElement("div");
               newE.innerHTML = `
-                          <button onclick = "details(${item.itemID})">
                         <div class="card listcard mx-auto" style="width: 18rem">
                             <img
                               src="${item.image}"
@@ -236,150 +81,159 @@
                               <p class="card-text">
                                 <div class="price-timestamp-container">
                                   <s class="text-left">$${item.price.toFixed(
-                2
-              )}</s>
-                                  <span class="text-right" style="color: red;">$${item.salesPrice.toFixed(2)}</span>
+                                    2
+                                  )}</s>
+                                  <span class="text-right" style="color: red;">$${item.salesPrice.toFixed(
+                                    2
+                                  )}</span>
                                 </div>
                               </p>
+                              <div class="edit">
+                                <input id="item${item.itemID}" type="text">
+                                </div>
                             </div>
                         </div>
-                          </button>
                       `;
-              //  <span class="text-right">${getDaysAgo(card.timestamp)}</span>
               parentE.append(newE);
               newE.className = "col-12 col-xxl-3 col-xl-4 col-lg-4 col-md-6";
             }
           }
-
         });
-      })
-  </script>
+      });
+    </script>
 
-  <!-- Carousel / Slider of Recommended Items -->
-  <section class="page-section bg-light" class="featured">
+    <!-- items -->
     <div class="container">
-      <h2 class="carousel-title text-center">Recommended for you</h2>
-      <div class="carousel-container">
-        <div class="button">
-          <img src="assets/svg/left-arrow.svg" class="swiper-button-prev" id="prev1"></img>
-        </div>
-        <div class="swiper" id="swiper1">
-          <div class="swiper-wrapper" id="carousel">
-          </div>
-        </div>
-        <!-- If we need navigation buttons -->
-        <div class="button">
-          <img src="assets/svg/right-arrow.svg" class="swiper-button-next" id="next1"></img>
-        </div>
-      </div>
-    </div>
-  </section>
+      Title: <input id="title" type="text">
+      <button
+        id="saveButton"
+        type="button"
+        class="btn btn-outline-primary"
+        onclick="save()"
+      >
+        Save
+      </button>
+      <span id="loading"></span>
 
-  <!-- items -->
-  <div class="container">
-    <div class="row row-cols-1 row-cols-md-3 g-4" id="list">
+      <div class="row row-cols-1 row-cols-md-3 g-4" id="list"></div>
     </div>
-  </div>
 
-  <!-- to details page function -->
-  <script>
+    <script>
+      // to details page function
       function details(id) {
         localStorage.setItem("itemIdx", id);
-        window.location.assign("details.html")
+        window.location.assign("details.html");
       }
-  </script>
 
-  <!-- Bootstrap -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-    crossorigin="anonymous"></script>
-</body>
+      function save() {
+        var loading = document.getElementById("loading")
+        loading.innerHTML = `<div class="spinner-border" role="status">
+                              <span class="visually-hidden">Loading...</span>
+                            </div>`
+        var inputs = document.querySelectorAll('input[type="text"]');
+        var list = [];
 
-<style>
-  body{
-  font-family: 'Poppins', sans-serif; 
-  }
-  h2 {
-    font-weight: bold;
-    font-size: 25px;
-  }
+        inputs.forEach((input) => {
+          data = {}
+          var itemId = input.id.replace("item", "");
+          var value = input.value.trim();
+          if (value != '' && itemId != "title"){
+            data["itemID"] = parseInt(itemId);
+            data["salesPrice"] = parseFloat(value) ;
+            list.push(data)
+          }
+        });
 
-  button {
-    background-color: transparent;
-    border: 1px solid rgba(255, 0, 0, 0);
-  }
+        var title = document.getElementById('title').value
 
-  .button {
-    margin: auto;
-  }
+        var input = {"items": list, "title": title}
 
+        var url = localStorage.baseURL + "/manageproduct/newsales"
 
-  .carousel-container {
-    padding: 10px;
-    margin: auto;
-    position: relative;
-    display: flex;
-    max-width: 100%;
-  }
+        axios.post(url, input)
+        .then(response => {
+            console.log(response.data)
+            location.reload();
+        }).catch(error => {
+          alert("Unsuccessful Update. Please check your values.")
+          loading.innerHTML = ""
+        })
+      }
+    </script>
 
-  .carousel-title{
-    padding-top: 10px;
-  }
+    <!-- Bootstrap -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+  </body>
 
-  @media (min-width: 992px) {
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+    }
+    h2 {
+      font-weight: bold;
+      font-size: 25px;
+    }
+
+    button {
+      background-color: transparent;
+      border: 1px solid rgba(255, 0, 0, 0);
+    }
+
     .carousel-container {
+      padding: 10px;
+      margin: auto;
+      position: relative;
+      display: flex;
+      max-width: 100%;
+    }
+
+    .carousel-title {
+      padding-top: 10px;
+    }
+
+    @media (min-width: 992px) {
+      .carousel-container {
+        flex-direction: row;
+      }
+    }
+
+    #swiper1,
+    #swiper2 {
+      position: relative;
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      max-width: 100%;
+      margin: auto;
+      overflow: hidden;
+    }
+
+    .swiper-wrapper {
+      display: flex;
       flex-direction: row;
     }
-  }
 
-  #swiper1,
-  #swiper2 {
-    position: relative;
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    max-width: 100%;
-    margin: auto;
-    overflow: hidden;
-  }
-
-  .swiper-wrapper {
-    display: flex;
-    flex-direction: row;
-  }
-
-  .swiper-button-prev {
-    border-radius: 8px;
-    width: 33px;
-    height: 33px;
-    margin-right: 30px;
-  }
-
-  .swiper-button-next {
-    border-radius: 8px;
-    width: 33px;
-    height: 33px;
-    margin-left: 30px;
-  }
-
-  .cta-button {
-    background-color: #D2921F;
-    border-color: #D2921F;
-    color: white;
-  }
-
-  .cta-button:hover {
-      background-color: #F1B392;
-      border-color: #F1B392;
+    .cta-button {
+      background-color: #d2921f;
+      border-color: #d2921f;
+      color: white;
     }
 
-  .carousel-title {
-    margin-left: 63px;
-  }
+    .cta-button:hover {
+      background-color: #f1b392;
+      border-color: #f1b392;
+    }
 
-  .nav-link{
-    color: #6D807C;
-  }
-</style>
+    .carousel-title {
+      margin-left: 63px;
+    }
 
+    .nav-link {
+      color: #6d807c;
+    }
+  </style>
 </html>
