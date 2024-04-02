@@ -235,7 +235,7 @@
             });
         },
         decrementQuantity(index) {
-          if (!this.cooldown && this.shoppingItems[index].new_quantity >= 1) {
+          if (!this.cooldown && this.shoppingItems[index].new_quantity > 1) {
             
             // Disable the button to prevent multiple clicks
             this.buttonDisabled = true;
@@ -276,6 +276,12 @@
                 this.cooldown = false; // Reset cooldown flag
               }, 1000); // Adjust the delay as needed
             });
+          }
+          else if (!this.cooldown && this.shoppingItems[index].new_quantity == 1){
+            this.removeitem(index);
+          }
+          else{
+            location.reload();
           }
         },
         incrementQuantity(index) {
