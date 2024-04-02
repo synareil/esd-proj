@@ -120,3 +120,76 @@ curl -i -X POST --url $KONG_ADMIN_URL/services/ --data "name=$SERVICE_NAME" --da
 # Add a route for the service
 echo "Adding route for $SERVICE_NAME..."
 curl -i -X POST --url $KONG_ADMIN_URL/services/$SERVICE_NAME/routes --data "paths[]=$ROUTE_PATHS"
+
+#Adding Cors
+curl -i -X POST http://localhost:8001/services/shipping/plugins \
+    --data "name=cors" \
+    --data "config.origins=*" \
+    --data "config.headers=Accept, Authorization, Content-Type" \
+    --data "config.exposed_headers=Authorization" \
+    --data "config.credentials=true" \
+    --data "config.max_age=3600"
+
+curl -i -X POST http://localhost:8001/services/cart/plugins \
+    --data "name=cors" \
+    --data "config.origins=*" \
+    --data "config.headers=Accept, Authorization, Content-Type" \
+    --data "config.exposed_headers=Authorization" \
+    --data "config.credentials=true" \
+    --data "config.max_age=3600"
+
+curl -i -X POST http://localhost:8001/services/order/plugins \
+    --data "name=cors" \
+    --data "config.origins=*" \
+    --data "config.headers=Accept, Authorization, Content-Type" \
+    --data "config.exposed_headers=Authorization" \
+    --data "config.credentials=true" \
+    --data "config.max_age=3600"
+
+curl -i -X POST http://localhost:8001/services/inventory/plugins \
+    --data "name=cors" \
+    --data "config.origins=*" \
+    --data "config.headers=Accept, Authorization, Content-Type" \
+    --data "config.exposed_headers=Authorization" \
+    --data "config.credentials=true" \
+    --data "config.max_age=3600"
+
+curl -i -X POST http://localhost:8001/services/marketing-content/plugins \
+    --data "name=cors" \
+    --data "config.origins=*" \
+    --data "config.headers=Accept, Authorization, Content-Type" \
+    --data "config.exposed_headers=Authorization" \
+    --data "config.credentials=true" \
+    --data "config.max_age=3600"
+
+curl -i -X POST http://localhost:8001/services/placeorder/plugins \
+    --data "name=cors" \
+    --data "config.origins=*" \
+    --data "config.headers=Accept, Authorization, Content-Type" \
+    --data "config.exposed_headers=Authorization" \
+    --data "config.credentials=true" \
+    --data "config.max_age=3600"
+
+curl -i -X POST http://localhost:8001/services/manageproduct/plugins \
+    --data "name=cors" \
+    --data "config.origins=*" \
+    --data "config.headers=Accept, Authorization, Content-Type" \
+    --data "config.exposed_headers=Authorization" \
+    --data "config.credentials=true" \
+    --data "config.max_age=3600"
+
+curl -i -X POST http://localhost:8001/services/search/plugins \
+    --data "name=cors" \
+    --data "config.origins=*" \
+    --data "config.headers=Accept, Authorization, Content-Type" \
+    --data "config.exposed_headers=Authorization" \
+    --data "config.credentials=true" \
+    --data "config.max_age=3600"
+
+curl -i -X POST http://localhost:8001/services/recommendation/plugin`s \
+    --data "name=cors" \
+    --data "config.origins=*" \
+    --data "config.headers=Accept, Authorization, Content-Type" \
+    --data "config.exposed_headers=Authorization" \
+    --data "config.credentials=true" \
+    --data "config.max_age=3600"
