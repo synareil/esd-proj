@@ -13,10 +13,7 @@ To add in dummy data, go to the scripts folder:
 > ./item_dummy.sh
 
 # 3. Running the website front-end for users and admin
-1. To access **user-end** front-end, cd to the userfrontend folder and type the following:
-> python -m http.server 8008
-
-Access the webpage via http://localhost:8008
+1. To access **user-end** front-end, Access the webpage via http://localhost:8008
 
 # 4. To bring microservices down
 > docker compose down 
