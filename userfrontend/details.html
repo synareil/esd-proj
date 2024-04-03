@@ -74,6 +74,10 @@
                                         <td id="price"></td>
                                     </tr>
                                     <tr>
+                                        <th>Category</th>
+                                        <td id="category"></td>
+                                    </tr>
+                                    <tr>
                                         <th>Name</th>
                                         <td id="name"></td>
                                     </tr>
@@ -84,10 +88,6 @@
                                     <tr>
                                         <th>Stock Available</th>
                                         <td id="stock"></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Quantity</th>
-                                        <td id="qty"></td>
                                     </tr>
                                 </table>
                             </ul>
@@ -156,6 +156,9 @@
                 var description = document.getElementById('description');
                 description.innerText = item.description;
 
+                var category = document.getElementById("category");
+                category.innerText = item.category;
+                
                 var stock = document.getElementById('stock');
                 stock.innerText = item.qty;
 
@@ -167,8 +170,22 @@
                     price.innerText = "$"+item.price;
                 }
 
-                var qty = document.getElementById('qty');
-                qty.innerText = item.qty;
+                if (item.qty == 0){
+                    var addtocart = document.getElementById('addtocart');
+                    addtocart.disabled = true;
+                    addtocart.innerText = "Out of Stock";
+
+                    var quantity = document.getElementById("quantity");
+                    quantity.disabled = true;
+                }
+                else{
+                    var addtocart = document.getElementById('addtocart');
+                    addtocart.disabled = false;
+                    addtocart.innerText = "Add to Cart";
+
+                    var quantity = document.getElementById("quantity");
+                    quantity.disabled = false;
+                }
             })
 
         // ADD TO CART BUTTON
