@@ -4,7 +4,7 @@ Welcome to our LittleFuzzy's Enterprise Solution Development Project. To test th
 In the ESD-Proj directory, use the following command to create docker containers and get the services up. Note: it may take a while
 > docker compose up --build
 
-**Ensure that all microservices are running except for kong-migration**
+**<p style='red'>Ensure that all microservices are running except for kong-migration<p>**
 
 Run the following commands in git-bash preferably
 > ./register_with_kong.sh  <br>
@@ -12,7 +12,7 @@ Run the following commands in git-bash preferably
 
 register_with_kong.sh can be found in the root folder, item_dummy.sh can be found in Scripts.
 
-Explaination:
+Explanation:
 * Register with kong.sh is to register with kong.
 * Item_dummy.sh imports dummy data for you to try. 
 
