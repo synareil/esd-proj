@@ -17,10 +17,7 @@ RABBITMQ_VHOST = os.getenv("RABBITMQ_VHOST", "/")
 QUEUE_NAME = "ProductManageme.error"
 
 credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
-parameters = pika.ConnectionParameters(host=RABBITMQ_HOST,
-                                        port=RABBITMQ_PORT,
-                                        virtual_host=RABBITMQ_VHOST,
-                                        credentials=credentials)
+parameters = pika.ConnectionParameters(host=RABBITMQ_HOST,port=RABBITMQ_PORT,virtual_host=RABBITMQ_VHOST,credentials=credentials)
 connection = pika.BlockingConnection(parameters)
 channel = connection.channel()
 
@@ -50,10 +47,7 @@ def generate_idempotency_key(user_id: str) -> str:
 
 def send_to_rabbitmq(message: dict):
     credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
-    parameters = pika.ConnectionParameters(host=RABBITMQ_HOST,
-                                           port=RABBITMQ_PORT,
-                                           virtual_host=RABBITMQ_VHOST,
-                                           credentials=credentials)
+    parameters = pika.ConnectionParameters(host=RABBITMQ_HOST,port=RABBITMQ_PORT,virtual_host=RABBITMQ_VHOST,credentials=credentials)
     connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
     
@@ -62,12 +56,8 @@ def send_to_rabbitmq(message: dict):
 
     routing_key = 'PlaceOrder.error'
     
-    channel.basic_publish(exchange=exchange_name, 
-                          routing_key=routing_key, 
-                          body=json.dumps(message),
-                          properties=pika.BasicProperties(
-                              delivery_mode=2,  # make message persistent
-                          ))
+    channel.basic_publish(exchange=exchange_name, routing_key=routing_key, body=json.dumps(message),properties=pika.BasicProperties(delivery_mode=2,))
+    # make message persistent
     connection.close()
     
 async def call_service_with_retry(method: str, url: str, retries: int = 3, backoff_factor: float = 2.0, **kwargs):
@@ -125,15 +115,11 @@ async def add_item(salesRequest: SalesRequest):
         
         image = responseItem["image"]
         image = image[:-1:]
-        itemModel = {"name": responseItem["name"],
-                     "image": image,
-                     "oldPrice": f"{responseItem["price"]:.2f}",
-                     "price": f"{responseItem["salesPrice"]:.2f}"}
+        itemModel = {"name": responseItem["name"],"image": image,"oldPrice": f"{responseItem["price"]:.2f}","price": f"{responseItem["salesPrice"]:.2f}"}
         items[str(itemID)] = itemModel
         if inventory_response.status_code != 200:
             raise HTTPException(status_code=inventory_response.status_code, detail=inventory_response.text)
-       
-       
+
     #call cart microservice
     user_item = {}
     for item in salesRequest.items:
@@ -142,6 +128,8 @@ async def add_item(salesRequest: SalesRequest):
         headers = {"Content-Type": "application/json"}
         
         cart_response = await call_service_with_retry(method = "GET", url=url, json=payload) 
+        if cart_response.status_code != 202:
+            raise HTTPException(status_code=cart_response.status_code, detail=cart_response.text)
         users = cart_response.json()["data"]
         for user in users:
             user = str(user)
@@ -149,21 +137,13 @@ async def add_item(salesRequest: SalesRequest):
                 user_item[user] = [str(itemID)]
             else:
                 user_item[user].append(str(itemID))
-        if cart_response.status_code != 202:
-            raise HTTPException(status_code=cart_response.status_code, detail=cart_response.text)
 
-    
-     
     #call marketing content microservice
     url = f"{KONG_GATEWAY}/marketing-content/newsales"
-    payload = {"title": salesRequest.title,
-               "items": items,
-               "userItem": user_item}
+    payload = {"title": salesRequest.title,"items": items,"userItem": user_item}
     
     print(payload)
     
     marketing_response = await call_service_with_retry(method = "POST", url=url, json=payload)    
     if marketing_response.status_code != 201:
-            raise HTTPException(status_code=marketing_response.status_code, detail=marketing_response.text)
-    
-    
+        raise HTTPException(status_code=marketing_response.status_code, detail=marketing_response.text)
