@@ -103,18 +103,17 @@
     </script>
 
     <!-- items -->
-    <div class="container">
-      Title: <input id="title" type="text">
+    <div class="container m-3">
+      Title: <input id="title" type="text" />
       <button
         id="saveButton"
         type="button"
-        class="btn btn-outline-primary"
+        class="cta-button btn btn-outline-primary"
         onclick="save()"
       >
         Save
       </button>
       <span id="loading"></span>
-
       <div class="row row-cols-1 row-cols-md-3 g-4" id="list"></div>
     </div>
 
@@ -126,38 +125,40 @@
       }
 
       function save() {
-        var loading = document.getElementById("loading")
+        var loading = document.getElementById("loading");
         loading.innerHTML = `<div class="spinner-border" role="status">
                               <span class="visually-hidden">Loading...</span>
-                            </div>`
+                            </div>`;
         var inputs = document.querySelectorAll('input[type="text"]');
         var list = [];
 
         inputs.forEach((input) => {
-          data = {}
+          data = {};
           var itemId = input.id.replace("item", "");
           var value = input.value.trim();
-          if (value != '' && itemId != "title"){
+          if (value != "" && itemId != "title") {
             data["itemID"] = parseInt(itemId);
-            data["salesPrice"] = parseFloat(value) ;
-            list.push(data)
+            data["salesPrice"] = parseFloat(value);
+            list.push(data);
           }
         });
 
-        var title = document.getElementById('title').value
+        var title = document.getElementById("title").value;
 
-        var input = {"items": list, "title": title}
+        var input = { items: list, title: title };
 
-        var url = localStorage.baseURL + "/manageproduct/newsales"
+        var url = localStorage.baseURL + "/manageproduct/newsales";
 
-        axios.post(url, input)
-        .then(response => {
-            console.log(response.data)
+        axios
+          .post(url, input)
+          .then((response) => {
+            console.log(response.data);
             location.reload();
-        }).catch(error => {
-          alert("Unsuccessful Update. Please check your values.")
-          loading.innerHTML = ""
-        })
+          })
+          .catch((error) => {
+            alert("Unsuccessful Update. Please check your values.");
+            loading.innerHTML = "";
+          });
       }
     </script>
 
@@ -234,6 +235,17 @@
 
     .nav-link {
       color: #6d807c;
+    }
+
+    .cta-button {
+    background-color: #D2921F;
+    border-color: #D2921F;
+    color: white;
+  }
+
+  .cta-button:hover {
+      background-color: #F1B392;
+      border-color: #F1B392;
     }
   </style>
 </html>
