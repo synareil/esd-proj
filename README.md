@@ -1,6 +1,25 @@
 # esd-proj
-HTTP Codes for the project are with reference to: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+# 1. Set up of docker
 
-To run the front-end codes. Go to cmd and the frontend folder. Type: python -m http.server
+# 2. Set up of environment
+To get the services up use the following command
+> docker compose up --build
 
-Access it at http://localhost:8000
+Go to docker desktop and make sure that 19/20 microservices are running. Everything but kong-migration must be running.
+After that, register with kong in git bash 
+> ./register_with_kong.sh
+
+To add in dummy data, go to the scripts folder:
+> ./item_dummy.sh
+
+# 3. Running the website front-end for users and admin
+1. To access **user-end** front-end, cd to the userfrontend folder and type the following:
+> python -m http.server 8008
+
+Access the webpage via http://localhost:8008
+
+# 4. To bring microservices down
+> docker compose down 
+
+To delete all network and database
+> docker compose down -v

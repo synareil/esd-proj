@@ -86,10 +86,10 @@
                             </a>
                           </div>
                           <p v-if="item.salesPrice > 0" class="mb-0 mr-2">
-                            <span><s>${{item.price}}</s></span>
-                            <span><strong class='text-danger'>${{item.salesPrice }}</strong></span>
+                            <span><s>${{item.price.toFixed(2)}}</s></span>
+                            <span><strong class='text-danger'>${{item.salesPrice.toFixed(2) }}</strong></span>
                           </p>
-                          <p v-else-if="item.salesPrice == 0" class="mb-0 mr-2"><span><strong>${{item.price }}</strong></span></p>
+                          <p v-else-if="item.salesPrice == 0" class="mb-0 mr-2"><span><strong>${{item.price.toFixed(2) }}</strong></span></p>
                         </div>
                       </div>
                       <!-- <div class="d-flex justify-content-end mt-5">
@@ -147,7 +147,7 @@
                         <p class="mb-0">(including GST)</p>
                       </strong>
                     </div>
-                    <span><strong>${{total_payment_price }}</strong></span>
+                    <span><strong>${{total_payment_price.toFixed(2) }}</strong></span>
                   </li>
                 </ul>
                 <button type="button" @click="checkout()" 
