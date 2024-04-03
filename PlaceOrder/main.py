@@ -94,10 +94,7 @@ async def rollback_order(orderID):
 
 def send_to_rabbitmq(message: dict):
     credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
-    parameters = pika.ConnectionParameters(host=RABBITMQ_HOST,
-                                           port=RABBITMQ_PORT,
-                                           virtual_host=RABBITMQ_VHOST,
-                                           credentials=credentials)
+    parameters = pika.ConnectionParameters(host=RABBITMQ_HOST,port=RABBITMQ_PORT,virtual_host=RABBITMQ_VHOST,credentials=credentials)
     connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
     
@@ -106,12 +103,7 @@ def send_to_rabbitmq(message: dict):
 
     routing_key = 'PlaceOrder.error'
     
-    channel.basic_publish(exchange=exchange_name, 
-                          routing_key=routing_key, 
-                          body=json.dumps(message),
-                          properties=pika.BasicProperties(
-                              delivery_mode=2,  # make message persistent
-                          ))
+    channel.basic_publish(exchange=exchange_name, routing_key=routing_key, body=json.dumps(message),properties=pika.BasicProperties(delivery_mode=2,))  # make message persistent
     connection.close()
     
 async def call_service_with_retry(method: str, url: str, retries: int = 3, backoff_factor: float = 2.0, **kwargs):
@@ -194,24 +186,9 @@ async def orchestrate_microservices(checkoutRequest: CheckoutRequest):
     orderID = order_response.json()["data"]["orderID"]
     totalPrice = inventory_response.json()["data"]["totalPrice"]
     name = "Order #" + str(orderID)
-    product = stripe.Product.create(name=name,
-                                    default_price_data={"unit_amount": 1,
-                                                        "currency": "sgd",
-                                                        },
-                                    expand=["default_price"],
-                                    )
-
-    price = stripe.Price.create(product=product.id,
-                                unit_amount=int(totalPrice * 100),
-                                currency="sgd",
-                                )
-
-    session = stripe.checkout.Session.create(line_items=[{"price": price.id, "quantity": 1}],
-                                             mode="payment",
-                                             success_url=YOUR_DOMAIN + '/success?session_id={CHECKOUT_SESSION_ID}',
-                                             cancel_url=YOUR_DOMAIN + '/cancel?session_id={CHECKOUT_SESSION_ID}',
-                                             metadata={"orderID":str(orderID),"userID":str(user_id),"shippingAddress":shippingAddress}
-                                             )
+    product = stripe.Product.create(name=name,default_price_data={"unit_amount": 1,"currency": "sgd",},expand=["default_price"],)
+    price = stripe.Price.create(product=product.id,unit_amount=int(totalPrice * 100),currency="sgd",)
+    session = stripe.checkout.Session.create(line_items=[{"price": price.id, "quantity": 1}],mode="payment",success_url=YOUR_DOMAIN + '/success?session_id={CHECKOUT_SESSION_ID}',cancel_url=YOUR_DOMAIN + '/cancel?session_id={CHECKOUT_SESSION_ID}',metadata={"orderID":str(orderID),"userID":str(user_id),"shippingAddress":shippingAddress})
 
     # response = Response()
     # response.status_code = 303
@@ -301,7 +278,7 @@ async def cancel_checkout(session_id):
     await rollback_order(orderID)
 
     response = Response()
-    response.status_code = 200
+    response.status_code = 303
     response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Location"] = "http://localhost:8008/failure.html"
     return response

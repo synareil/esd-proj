@@ -39,10 +39,7 @@ connection.close()
 
 def send_to_rabbitmq(message: dict):
     credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
-    parameters = pika.ConnectionParameters(host=RABBITMQ_HOST,
-                                           port=RABBITMQ_PORT,
-                                           virtual_host=RABBITMQ_VHOST,
-                                           credentials=credentials)
+    parameters = pika.ConnectionParameters(host=RABBITMQ_HOST,port=RABBITMQ_PORT,virtual_host=RABBITMQ_VHOST,credentials=credentials)
     connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
     
@@ -51,12 +48,8 @@ def send_to_rabbitmq(message: dict):
 
     routing_key = 'Recommendation.error'
     
-    channel.basic_publish(exchange=exchange_name, 
-                          routing_key=routing_key, 
-                          body=json.dumps(message),
-                          properties=pika.BasicProperties(
-                              delivery_mode=2,  # make message persistent
-                          ))
+    channel.basic_publish(exchange=exchange_name, routing_key=routing_key, body=json.dumps(message),properties=pika.BasicProperties(delivery_mode=2,))
+    # make message persistent
     connection.close()
 
 async def call_service_with_retry(method: str, url: str, retries: int = 3, backoff_factor: float = 2.0, **kwargs):

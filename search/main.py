@@ -17,10 +17,7 @@ RABBITMQ_VHOST = os.getenv("RABBITMQ_VHOST", "/")
 QUEUE_NAME = "Search.error"
 
 credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
-parameters = pika.ConnectionParameters(host=RABBITMQ_HOST,
-                                        port=RABBITMQ_PORT,
-                                        virtual_host=RABBITMQ_VHOST,
-                                        credentials=credentials)
+parameters = pika.ConnectionParameters(host=RABBITMQ_HOST,port=RABBITMQ_PORT,virtual_host=RABBITMQ_VHOST,credentials=credentials)
 connection = pika.BlockingConnection(parameters)
 channel = connection.channel()
 

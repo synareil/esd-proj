@@ -136,7 +136,14 @@ def get_users_with_itemID_in_active_cart(itemID):
             description: List of users with the item in their active cart.
     """
     carts = CartItem.query.filter_by(itemID=itemID).all()
-    users_return = [cart.userID for cart in carts if Cart.query.filter_by(cartID=cart.cartID, active=True).first()]
+    users_return = []
+    # users_return = [cart.userID for cart in carts if Cart.query.filter_by(cartID=cart.cartID, active=True).first()]
+    for cartItemModel in carts:
+        cartID = cartItemModel.cartID
+        UserModel = Cart.query.filter_by(cartID=cartID, active=True).first()
+        userID = UserModel.userID
+        users_return.append(userID)
+
     return jsonify({"code": 202, "data": users_return}), 202
 
 # Close the active cart for a specific user

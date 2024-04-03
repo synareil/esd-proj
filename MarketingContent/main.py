@@ -32,10 +32,7 @@ db_dependency = Annotated[Session, Depends(get_db)]
 
 def send_to_rabbitmq(message: dict):
     credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
-    parameters = pika.ConnectionParameters(host=RABBITMQ_HOST,
-                                           port=RABBITMQ_PORT,
-                                           virtual_host=RABBITMQ_VHOST,
-                                           credentials=credentials)
+    parameters = pika.ConnectionParameters(host=RABBITMQ_HOST,port=RABBITMQ_PORT,virtual_host=RABBITMQ_VHOST,credentials=credentials)
     connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
 
@@ -44,12 +41,8 @@ def send_to_rabbitmq(message: dict):
     channel.queue_declare(queue=queue_name, durable=True)
 
     # Publish message
-    channel.basic_publish(exchange='',
-                          routing_key=queue_name,
-                          body=json.dumps(message),
-                          properties=pika.BasicProperties(
-                              delivery_mode=2,  # make message persistent
-                          ))
+    channel.basic_publish(exchange='',routing_key=queue_name,body=json.dumps(message),properties=pika.BasicProperties(delivery_mode=2,))
+    # make message persistent
     connection.close()
 
 class Item(BaseModel):
@@ -90,10 +83,8 @@ async def create_marketing(newSales_request: NewSalesRequest, db: db_dependency)
             items_return = []
             for itemID in itemIDs:
                 items_return.append(items[str(itemID)])
-            message ={"to":{"email":email, 
-                            "name":name},
-                      "templateId":4,
-                      "params":{"items": items_return}}
+            
+            message ={"to":{"email":email, "name":name},"templateId":4,"params":{"items": items_return}}
             #sample item
             # "items":[
             #         {"name": "Vinyl Sticker 1",
