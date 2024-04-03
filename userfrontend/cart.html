@@ -42,6 +42,7 @@
       <div class="row">
         <div class="col-lg-8">
           <div class="mb-3">
+            <p id="status"></p>
             <div class="pt-4">
 
               <!--Items in the shopping cart-->
@@ -296,9 +297,9 @@
               var quantity = this.shoppingItems[index].quantity;
               var new_quantity = this.shoppingItems[index].new_quantity;
 
-              console.log("itemID:", itemID, "original quantity: ", quantity, "new quantity: ", new_quantity);
+              // console.log("itemID:", itemID, "original quantity: ", quantity, "new quantity: ", new_quantity);
               var add_quantity = (new_quantity - quantity);
-              console.log("quantity to add is: ", add_quantity)
+              // console.log("quantity to add is: ", add_quantity)
 
               axios.put(cart_url, {
                 "addItem": [
@@ -308,12 +309,12 @@
               })
               .then(response => {
                 this.shoppingItems[index].quantity = new_quantity; // Corrected assignment
-                console.log(response.data);
+                // console.log(response.data);
                 this.calculateTotals();
                 // location.reload();
               })
               .catch(error => {
-                console.log(error);
+                // console.log(error);
                 alert("Something went wrong. Please try again!");
               })
               .finally(() => {
@@ -332,7 +333,7 @@
 
           var itemID = this.shoppingItems[index].itemID;
           var quantity = this.shoppingItems[index].quantity;
-          console.log("itemID: " + itemID + " quantity: " + quantity);
+          // console.log("itemID: " + itemID + " quantity: " + quantity);
 
           axios.put(cart_url, {
             "deleteItem": [
@@ -341,14 +342,14 @@
             ]
           })
           .then(response => {
-            console.log(response.data);
+            // console.log(response.data);
             this.shoppingItems.splice(index, 1);
             this.calculateTotals();
             alert("You have successfully removed the item from your cart.");
             location.reload();
           })
           .catch(error => {
-            console.log(error);
+            // console.log(error);
             alert("You have failed to remove the item from your cart. Try again");
             // location.reload();
           });
@@ -378,7 +379,9 @@
         },
         checkout() {
           //place order by sending the shipping address
-          console.log(this.address);
+          // console.log(this.address);
+          var status = document.getElementById("status");
+          status.innerHTML = "Checking out... Please be patient!";
           var url = localStorage.baseURL + "/placeorder/checkout";
 
           var data = {
@@ -388,11 +391,13 @@
 
           axios.post(url, data)
             .then(response => {
-              console.log(response.data);
+              var status = document.getElementById("status");
+              status.innerHTML = "";
+              // console.log(response.data);
               window.open(response.data, "_self");
             })
             .catch(error => {
-              console.log(error);
+              // console.log(error);
               alert("Something went wrong. Try again!");
             });
         },
