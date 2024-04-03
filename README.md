@@ -10,6 +10,8 @@ Run the following commands in git-bash preferably
 > ./register_with_kong.sh 
 > ./item_dummy.sh
 
+register_with_kong.sh can be found in the root folder, item_dummy.sh can be found in Scripts.
+
 Explaination:
 * Register with kong.sh is to register with kong. 
 * Item_dummy.sh imports dummy data for you to try. 
