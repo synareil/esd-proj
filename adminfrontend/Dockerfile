@@ -8,7 +8,7 @@ WORKDIR /app
 COPY . /app
 
 # Expose the port the server will run on
-EXPOSE 8000
+EXPOSE 8009
 
 # Start the server
 CMD ["python", "-m", "http.server", "8009"]
