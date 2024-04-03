@@ -138,7 +138,7 @@
         }
       ]
       for (each of data) {
-        console.log(each)
+        // console.log(each)
         var order = each.order
         var items = each.items
         if (order.status == "pending") {
@@ -152,7 +152,7 @@
         var text = ``
         var count = 1
         for(item of items) {
-          console.log(item)
+          // console.log(item)
           text += `${count}. ${item.itemID}<br>`
           count ++
         }
