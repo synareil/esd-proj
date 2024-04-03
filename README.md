@@ -14,8 +14,10 @@ Explaination:
 * Register with kong.sh is to register with kong. 
 * Item_dummy.sh imports dummy data for you to try. 
 
-# 3. Running the website front-end for users and admin
-1. To access **user-end** front-end, Access the webpage via http://localhost:8009
+# 3.Accessing website UI for users and admin
+1. Access the users webpage via http://localhost:8008
+2. Access the admin webpage via http://localhost:8009
+
 
 # 4. To bring microservices down
 > docker compose down 

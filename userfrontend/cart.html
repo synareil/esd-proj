@@ -229,11 +229,11 @@
                   this.calculateTotals();
                 })
                 .catch(error => {
-                  console.log(error);
+                  // console.log(error);
                 });
             })
             .catch(error => {
-              console.log(error);
+              // console.log(error);
             });
         },
         decrementQuantity(index) {
@@ -252,9 +252,9 @@
               this.removeitem(index);
             }
 
-            console.log("itemID:", itemID, "original quantity: ", quantity, "new quantity: ", new_quantity);
+            // console.log("itemID:", itemID, "original quantity: ", quantity, "new quantity: ", new_quantity);
             var remove_quantity = (quantity - new_quantity);
-            console.log("quantity to remove is: ", remove_quantity)
+            // console.log("quantity to remove is: ", remove_quantity)
 
             axios.put(cart_url, {
               "deleteItem": [
@@ -266,11 +266,11 @@
             })
             .then(response => {
               this.shoppingItems[index].quantity = new_quantity; // Corrected assignment
-              console.log(response.data);
+              // console.log(response.data);
               this.calculateTotals();
             })
             .catch(error => {
-              console.log(error);
+              // console.log(error);
               alert("Something went wrong. Please try again!");
             })
             .finally(() => {
