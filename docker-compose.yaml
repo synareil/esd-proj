@@ -1,6 +1,28 @@
 version: '3.8'
 
 services:
+  admin-frontend:
+    build: ./userfrontend/.
+    restart: on-failure
+    volumes:
+      - ./userfrontend/.:/app
+    ports:
+      - "8009:8009"
+    networks:
+      - app_network
+    command: python -m http.server 8009
+
+  user-frontend:
+    build: ./userfrontend/.
+    restart: on-failure
+    volumes:
+      - ./userfrontend/.:/app
+    ports:
+      - "8008:8008"
+    networks:
+      - app_network
+    command: python -m http.server 8008
+
   recommendation: 
     container_name: recommendation
     build: ./recommendation/.
