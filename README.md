@@ -7,13 +7,13 @@ In the ESD-Proj directory, use the following command to create docker containers
 **Ensure that all microservices are running except for kong-migration**
 
 Run the following commands in git-bash preferably
-> ./register_with_kong.sh 
+> ./register_with_kong.sh  <br>
 > ./item_dummy.sh
 
 register_with_kong.sh can be found in the root folder, item_dummy.sh can be found in Scripts.
 
 Explaination:
-* Register with kong.sh is to register with kong. <br>
+* Register with kong.sh is to register with kong.
 * Item_dummy.sh imports dummy data for you to try. 
 
 # 3.Accessing website UI for users and admin
