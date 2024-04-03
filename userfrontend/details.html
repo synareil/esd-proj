@@ -162,6 +162,9 @@
                 var stock = document.getElementById('stock');
                 stock.innerText = item.qty;
 
+                var quantity = document.getElementById("quantity");
+                quantity.setAttribute("max", item.qty);
+
                 var price = document.getElementById('price');
                 if (item.salesPrice != 0){
                     price.innerHTML = "<s>$"+item.price+"</s>"+"<span style='color:red;font-weight:bold'> $"+item.salesPrice+"</span>";
@@ -195,14 +198,22 @@
             // console.log("quantity", document.getElementById("quantity").value);
             // console.log("itemID", localStorage.itemIdx);    
 
-            var cart_url = localStorage.baseURL + "/cart/" + '1';
-            //axios put to the url
-            axios.put(cart_url, {
-                "addItem": [
-                    {"itemID":localStorage.itemIdx,
-                    "quantity":document.getElementById('quantity').value},
-                ]
-            })
+            var stock = parseInt(document.getElementById('stock').innerText);
+            var quantity = parseInt(document.getElementById('quantity').value);
+            
+            if (quantity > stock){
+                alert("Quantity exceeds stock available. Please enter a valid quantity.");
+                return;
+            }
+            else{
+                var cart_url = localStorage.baseURL + "/cart/" + '1';
+                //axios put to the url
+                axios.put(cart_url, {
+                    "addItem": [
+                        {"itemID":localStorage.itemIdx,
+                        "quantity":document.getElementById('quantity').value},
+                    ]
+                })
                 .then(response => {
                     // console.log(response.data);
                     // console.log("SUCCESS");
@@ -214,6 +225,7 @@
                     // console.log("FAILURE");
                     alert("You have failed added the item to your cart. Try again. If you have added this item before, please modify in your cart!");
                 });
+            }
         });
     })
 </script>
