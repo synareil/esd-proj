@@ -2,10 +2,10 @@ version: '3.8'
 
 services:
   admin-frontend:
-    build: ./userfrontend/.
+    build: ./adminfrontend/.
     restart: on-failure
     volumes:
-      - ./userfrontend/.:/app
+      - ./adminfrontend/.:/app
     ports:
       - "8009:8009"
     networks:
