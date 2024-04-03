@@ -4,8 +4,6 @@ services:
   admin-frontend:
     build: ./adminfrontend/.
     restart: on-failure
-    volumes:
-      - ./adminfrontend/.:/app
     ports:
       - "8009:8009"
     networks:

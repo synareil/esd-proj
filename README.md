@@ -1,25 +1,24 @@
 # esd-proj
-# 1. Set up of docker
-
-# 2. Set up of environment
-To get the services up use the following command
+Welcome to our LittleFuzzy's Enterprise Solution Development Project. To test this project yourself, please follow the following instruction.
+# 1. Set up of docker & environment
+In the ESD-Proj directory, use the following command to create docker containers and get the services up. Note: it may take a while
 > docker compose up --build
 
-Go to docker desktop and make sure that 19/20 microservices are running. Everything but kong-migration must be running.
-After that, register with kong in git bash 
-> ./register_with_kong.sh
+**Ensure that all microservices are running except for kong-migration**
 
-To add in dummy data, go to the scripts folder:
+Run the following commands in git-bash preferably
+> ./register_with_kong.sh 
 > ./item_dummy.sh
 
-# 3. Running the website front-end for users and admin
-1. To access **user-end** front-end, cd to the userfrontend folder and type the following:
-> python -m http.server 8008
+Explaination:
+* Register with kong.sh is to register with kong. 
+* Item_dummy.sh imports dummy data for you to try. 
 
-Access the webpage via http://localhost:8008
+# 3. Running the website front-end for users and admin
+1. To access **user-end** front-end, Access the webpage via http://localhost:8009
 
 # 4. To bring microservices down
 > docker compose down 
 
-To delete all network and database
+To delete all network, databases and containers
 > docker compose down -v

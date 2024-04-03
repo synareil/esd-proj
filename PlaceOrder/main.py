@@ -206,8 +206,7 @@ async def orchestrate_microservices(checkoutRequest: CheckoutRequest):
                                 currency="sgd",
                                 )
 
-    session = stripe.checkout.Session.create(
-                                             line_items=[{"price": price.id, "quantity": 1}],
+    session = stripe.checkout.Session.create(line_items=[{"price": price.id, "quantity": 1}],
                                              mode="payment",
                                              success_url=YOUR_DOMAIN + '/success?session_id={CHECKOUT_SESSION_ID}',
                                              cancel_url=YOUR_DOMAIN + '/cancel?session_id={CHECKOUT_SESSION_ID}',
@@ -301,9 +300,9 @@ async def cancel_checkout(session_id):
     await rollback_inventory(items)
     await rollback_order(orderID)
 
-    # response = Response()
-    # response.status_code = 200
-    # response.headers["Access-Control-Allow-Origin"] = "*"
-    # response.headers["Location"] = "http://localhost:8008/failure.html"
-    # return response
+    response = Response()
+    response.status_code = 200
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Location"] = "http://localhost:8008/failure.html"
+    return response
     
