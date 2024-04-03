@@ -206,8 +206,7 @@ async def orchestrate_microservices(checkoutRequest: CheckoutRequest):
                                 currency="sgd",
                                 )
 
-    session = stripe.checkout.Session.create(
-                                             line_items=[{"price": price.id, "quantity": 1}],
+    session = stripe.checkout.Session.create(line_items=[{"price": price.id, "quantity": 1}],
                                              mode="payment",
                                              success_url=YOUR_DOMAIN + '/success?session_id={CHECKOUT_SESSION_ID}',
                                              cancel_url=YOUR_DOMAIN + '/cancel?session_id={CHECKOUT_SESSION_ID}',

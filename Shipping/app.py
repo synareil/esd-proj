@@ -19,6 +19,13 @@ app = Flask(__name__)
 # Configure database connection
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# Configure Swagger for API documentation
+app.config['SWAGGER'] = {
+    'title': 'Shipping microservice API',
+    'version': 1.0,
+    'openapi': "3.0.2"
+}
+swagger = Swagger(app)
 
 # Initialize SQLAlchemy ORM
 db = SQLAlchemy(app)

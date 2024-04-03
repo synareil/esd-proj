@@ -135,9 +135,7 @@ async def search(q: str, user_id: int):
             inventory_response = await call_service_with_retry(method = "GET", url=url)
             if inventory_response.status_code == 200:
                 inventory_response = inventory_response.json()["data"]
-                itemModel = Item(name=inventory_response["name"],
-                                    description=inventory_response["description"],
-                                    category=inventory_response["category"])
+                itemModel = Item(name=inventory_response["name"],description=inventory_response["description"],category=inventory_response["category"])
                 items.append(itemModel.model_dump())
             
         #Call Recommendation microservice
@@ -159,6 +157,4 @@ async def search(q: str, user_id: int):
     
     to_return["search"] = inventory_response.json()
     
-    return to_return
-            
-        
+    return to_return        
