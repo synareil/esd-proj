@@ -113,13 +113,7 @@ async def search(q: str, user_id: int):
 
     #call inventory microservice
     url = f"{INVENTORY_BASEURL}/search?q={q}"
-    inventory_response = await call_service_with_retry(method = "GET", url=url)
-    if inventory_response.status_code != 200:
-        message = {'message':"Inventory service failed. ", 'source':"Search"}
-        send_to_rabbitmq(message)
-        raise HTTPException(status_code=inventory_response.status_code, detail=inventory_response.text)
-    
-    to_return["search"] = inventory_response.json()
+    inventory_task = asyncio.create_task(call_service_with_retry(method = "GET", url=url))
     
     # Call the cart
     url = f"{CART_BASEURL}/{user_id}"
@@ -156,6 +150,14 @@ async def search(q: str, user_id: int):
             raise HTTPException(status_code=recommendation_response.status_code, detail=recommendation_response.text)
         
         to_return["recommendation"] = recommendation_response.json()["items"]
+        
+        inventory_response = await inventory_task
+        if inventory_response.status_code != 200:
+            message = {'message':"Inventory service failed. ", 'source':"Search"}
+            send_to_rabbitmq(message)
+            raise HTTPException(status_code=inventory_response.status_code, detail=inventory_response.text)
+    
+    to_return["search"] = inventory_response.json()
     
     return to_return
             
