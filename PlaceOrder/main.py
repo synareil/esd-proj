@@ -79,7 +79,7 @@ async def rollback_inventory(items):
     inventory_response = await call_service_with_retry(method = "POST", url=url, json=payload)
     print("Rollbacking inventory ...")
     
-    if inventory_response.status_code != 200:
+    if inventory_response.status_code != 202:
         message = {'message':"Rollbacking Inventory service failed" + inventory_response.text, 'source':"PlaceOrder"}
         send_to_rabbitmq(message)
 
