@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  shipping:
+    build: ./shipping/.
+    ports:
+      - "5005:5000"
+    environment:
+      - dbURL=mysql+mysqlconnector://root:password@shipping-db:3306/proj_shipping
+    depends_on:
+      - shipping-db
+    networks:
+      - app_network
+      - shipping_network
+    restart: always
+
+  shipping-db:
+    image: mysql:8.0
+    platform: linux/amd64
+    ports:
+      - "6005:3306"
+    networks:
+      - shipping_network
+    environment:
+      MYSQL_DATABASE: proj_shipping
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - db-data5:/var/lib/mysql
+
+  order:
+    build: ./orders/.
+    ports:
+      - "5002:5000"
+    environment:
+      - dbURL=mysql+mysqlconnector://root:password@order-db:3306/proj_order
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - order-db
+    networks:
+      - app_network
+      - order_network
+
+
+  order-db:
+    image: mysql:8.0
+    platform: linux/amd64
+    ports:
+      - "6002:3306"
+    environment:
+      MYSQL_DATABASE: proj_order
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - db-data2:/var/lib/mysql
+          - shipping-db
+    networks:
+      - order_network
+
+volumes:
+  db-data2:
+  db-data5:
+
+networks:
+  app_network:
+    name: app_network
+  shipping_network:
+    name: shipping_network
+  order_network:
+    name: order_network
