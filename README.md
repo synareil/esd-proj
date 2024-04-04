@@ -1,14 +1,14 @@
 # esd-proj
 Welcome to our LittleFuzzy's Enterprise Solution Development Project. To test this project yourself, please follow the following instruction.
 # 1. Set up of docker & environment
-In the ESD-Proj directory, use the following command to create docker containers and get the services up. Note: it may take a while
+1. In the ESD-Proj directory, use the following command to create docker containers and get the services up. Note: it may take a while
 > docker compose up --build
 
 **Ensure that all microservices are running except for kong-migration<p>**
 
-You may edit ./user_dummy.sql in Scripts, by changing 'youremail@example.com' to your email
+2. You may edit ./user_dummy.sql in Scripts, by changing 'youremail@example.com' to your email
 
-Run the following commands in git-bash
+3. Run the following commands in git-bash
 > source ./register_with_kong.sh  <br>
 > source ./item_dummy.sh
 
