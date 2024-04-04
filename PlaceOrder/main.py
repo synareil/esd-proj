@@ -148,7 +148,7 @@ async def orchestrate_microservices(checkoutRequest: CheckoutRequest):
     cart_response = await call_service_with_retry(method='GET', url=url, headers=headers)
     
     if cart_response.status_code != 202:
-        message = {'message':"Cart service failed. " + cart_response.text, 'source':"PlaceOrder"}
+        message = {'message':"Cart service failed. ", 'source':"PlaceOrder"}
         send_to_rabbitmq(message)
         raise HTTPException(status_code=cart_response.status_code, detail="Cart service failed")
     
@@ -161,7 +161,7 @@ async def orchestrate_microservices(checkoutRequest: CheckoutRequest):
     inventory_response = await call_service_with_retry(method = "POST", url=url, json=payload)
     
     if inventory_response.status_code != 200:
-        message = {'message':"Inventory service failed. " + inventory_response.text, 'source':"PlaceOrder"}
+        message = {'message':"Inventory service failed. ", 'source':"PlaceOrder"}
         send_to_rabbitmq(message)
         raise HTTPException(status_code=inventory_response.status_code, detail="Inventory service failed")
     
@@ -176,7 +176,7 @@ async def orchestrate_microservices(checkoutRequest: CheckoutRequest):
     order_response = await call_service_with_retry(method = "POST", url=url, json=payload)
     
     if order_response.status_code != 201:
-        message = {'message':"Order service failed. " + order_response.text, 'source':"PlaceOrder"}
+        message = {'message':"Order service failed. ", 'source':"PlaceOrder"}
         send_to_rabbitmq(message)
         await rollback_inventory(items)
         raise HTTPException(status_code=order_response.status_code, detail="Order service failed")
@@ -214,7 +214,7 @@ async def finish_checkout(session_id):
     cart_response = await call_service_with_retry(method='GET', url=url, headers=headers)
     
     if cart_response.status_code != 202:
-        message = {'message':"Cart service failed. " + cart_response.text, 'source':"PlaceOrder"}
+        message = {'message':"Cart service failed. ", 'source':"PlaceOrder"}
         send_to_rabbitmq(message)
         raise HTTPException(status_code=cart_response.status_code, detail="Cart service failed")
     items = cart_response.json()["data"]
@@ -232,7 +232,7 @@ async def finish_checkout(session_id):
     shipping_response = await call_service_with_retry(method = "POST", url=url, json=payload)
     
     if shipping_response.status_code != 201:
-        message = {'message':"Shipping service failed. " + shipping_response.text, 'source':"PlaceOrder"}
+        message = {'message':"Shipping service failed. ", 'source':"PlaceOrder"}
         send_to_rabbitmq(message)
         raise HTTPException(status_code=shipping_response.status_code, detail="Shipping service failed")
     
@@ -266,7 +266,7 @@ async def cancel_checkout(session_id):
     cart_response = await call_service_with_retry(method='GET', url=url, headers=headers)
     
     if cart_response.status_code != 202:
-        message = {'message':"Cart service failed. " + cart_response.text, 'source':"PlaceOrder"}
+        message = {'message':"Cart service failed. ", 'source':"PlaceOrder"}
         send_to_rabbitmq(message)
         raise HTTPException(status_code=cart_response.status_code, detail="Cart service failed")
     items = cart_response.json()["data"]

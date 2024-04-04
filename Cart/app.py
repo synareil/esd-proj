@@ -141,8 +141,9 @@ def get_users_with_itemID_in_active_cart(itemID):
     for cartItemModel in carts:
         cartID = cartItemModel.cartID
         UserModel = Cart.query.filter_by(cartID=cartID, active=True).first()
-        userID = UserModel.userID
-        users_return.append(userID)
+        if UserModel:
+            userID = UserModel.userID
+            users_return.append(userID)
 
     return jsonify({"code": 202, "data": users_return}), 202
 

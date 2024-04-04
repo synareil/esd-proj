@@ -106,6 +106,7 @@ async def add_item(recommendationRequest: RecommendationRequest):
     if inventory_response.status_code != 200:
         message = {'message':"Inventory service failed. ", 'source':"Recommendation"}
         send_to_rabbitmq(message)
+        
         raise HTTPException(status_code=inventory_response.status_code)
     
     return inventory_response.json()["data"]

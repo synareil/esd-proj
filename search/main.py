@@ -146,11 +146,11 @@ async def search(q: str, user_id: int):
         
         to_return["recommendation"] = recommendation_response.json()["items"]
         
-        inventory_response = await inventory_task
-        if inventory_response.status_code != 200:
-            message = {'message':"Inventory service failed. ", 'source':"Search"}
-            send_to_rabbitmq(message)
-            raise HTTPException(status_code=inventory_response.status_code, detail=inventory_response.text)
+    inventory_response = await inventory_task
+    if inventory_response.status_code != 200:
+        message = {'message':"Inventory service failed. ", 'source':"Search"}
+        send_to_rabbitmq(message)
+        raise HTTPException(status_code=inventory_response.status_code, detail=inventory_response.text)
     
     to_return["search"] = inventory_response.json()
     
