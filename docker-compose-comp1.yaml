@@ -1,0 +1,369 @@
+version: '3.8'
+
+services:
+  admin-frontend:
+    build: ./adminfrontend/.
+    restart: on-failure
+    ports:
+      - "8009:8009"
+    networks:
+      - app_network
+    command: python -m http.server 8009
+
+  user-frontend:
+    build: ./userfrontend/.
+    restart: on-failure
+    volumes:
+      - ./userfrontend/.:/app
+    ports:
+      - "8008:8008"
+    networks:
+      - app_network
+    command: python -m http.server 8008
+
+  recommendation: 
+    container_name: recommendation
+    build: ./recommendation/.
+    restart: on-failure
+    volumes:
+      - ./recommendation/.:/usr/src/app
+    ports:
+      - "5014:80"
+    depends_on:
+      - inventory
+      - rabbitmq
+    networks:
+      - app_network
+    env_file:
+      - ./env_files/rabbitmq.env
+    command: uvicorn main:app --host 0.0.0.0 --port 80 --reload
+
+  search:
+    container_name: search
+    build: ./search/.
+    restart: on-failure
+    volumes:
+      - ./search/.:/usr/src/app
+    ports:
+      - "5013:80"
+    depends_on:
+      - inventory
+      - cart
+      - recommendation
+      - rabbitmq
+    networks:
+      - app_network
+    env_file:
+      - ./env_files/rabbitmq.env
+    command: uvicorn main:app --host 0.0.0.0 --port 80 --reload
+
+  error-log:
+    build: ./errorlog2/.
+    restart: on-failure
+    volumes:
+      - .:/app
+      - error_log_data:/app/db
+    ports:
+      - "5007:8000"
+    networks:
+      - app_network
+    env_file:
+      - env_files/rabbitmq.env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  placeorder:
+    container_name: placeorder
+    build: ./placeorder/.
+    restart: on-failure
+    volumes:
+      - ./placeorder/.:/usr/src/app
+    ports:
+      - "5011:80"
+    depends_on:
+      # - order
+      - cart
+      - inventory
+      # - shipping
+      - rabbitmq
+    networks:
+      - app_network
+    env_file:
+      - ./env_files/marketing_content.env
+      - ./env_files/stripe.env
+    command: uvicorn main:app --host 0.0.0.0 --port 80 --reload
+
+  manageproduct:
+    container_name: manageproduct
+    build: ./ManageProduct/.
+    restart: on-failure
+    volumes:
+      - ./ManageProduct/.:/usr/src/app
+    ports:
+      - "5012:80"
+    depends_on:
+      - inventory
+      - rabbitmq
+      - marketing-communication
+      - marketing-content
+    networks:
+      - app_network
+    env_file:
+      - ./env_files/marketing_content.env
+    command: uvicorn main:app --host 0.0.0.0 --port 80 --reload
+
+  # shipping:
+  #   build: ./shipping/.
+  #   ports:
+  #     - "5005:5000"
+  #   environment:
+  #     - dbURL=mysql+mysqlconnector://root:password@shipping-db:3306/proj_shipping
+  #   depends_on:
+  #     - shipping-db
+  #   networks:
+  #     - app_network
+  #     - shipping_network
+  #   restart: always
+
+  # shipping-db:
+  #   image: mysql:8.0
+  #   platform: linux/amd64
+  #   ports:
+  #     - "6005:3306"
+  #   networks:
+  #     - shipping_network
+  #   environment:
+  #     MYSQL_DATABASE: proj_shipping
+  #     MYSQL_ROOT_PASSWORD: password
+  #   volumes:
+  #     - db-data5:/var/lib/mysql
+
+  cart:
+    build: ./cart/.
+    ports:
+      - "5004:5000"
+    environment:
+      - dbURL=mysql+mysqlconnector://root:password@cart-db:3306/proj_cart
+    depends_on:
+      - cart-db
+    networks:
+      - app_network
+      - cart_network
+    restart: always
+
+  cart-db:
+    image: mysql:8.0
+    platform: linux/amd64
+    ports:
+      - "6004:3306"
+    environment:
+      MYSQL_DATABASE: proj_cart
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - db-data4:/var/lib/mysql
+    networks:
+      - cart_network
+    restart: always
+
+  # order:
+  #   build: ./orders/.
+  #   ports:
+  #     - "5002:5000"
+  #   environment:
+  #     - dbURL=mysql+mysqlconnector://root:password@order-db:3306/proj_order
+  #     - PYTHONUNBUFFERED=1
+  #   depends_on:
+  #     - order-db
+  #   networks:
+  #     - app_network
+  #     - order_network
+
+
+  # order-db:
+  #   image: mysql:8.0
+  #   platform: linux/amd64
+  #   ports:
+  #     - "6002:3306"
+  #   environment:
+  #     MYSQL_DATABASE: proj_order
+  #     MYSQL_ROOT_PASSWORD: password
+  #   volumes:
+  #     - db-data2:/var/lib/mysql
+  #         - shipping-db
+  #   networks:
+  #     - order_network
+
+  inventory:
+    build: ./inventory/.
+    ports:
+      - "5001:5000"
+    environment:
+      - dbURL=mysql+mysqlconnector://root:password@inventory-db:3306/proj_inventory
+    depends_on:
+      - inventory-db
+    networks:
+      - app_network
+      - inventory_network
+
+  inventory-db:
+    image: mysql:8.0
+    platform: linux/amd64
+    ports:
+      - "6001:3306"
+    environment:
+      MYSQL_DATABASE: proj_inventory
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - inventory_network
+
+  marketing-content:
+    container_name: marketing-content
+    build: ./marketingcontent/.
+    volumes:
+      - ./marketingcontent/.:/usr/src/app
+    ports:
+      - "5006:80"
+    depends_on:
+      - marketing-content-db
+      - rabbitmq
+    networks:
+      - app_network
+      - marketing_network
+    env_file:
+      - ./env_files/marketing_content.env
+    command: uvicorn main:app --host 0.0.0.0 --port 80 --reload
+
+  marketing-content-db:
+    image: postgres:15
+    platform: linux/amd64
+    ports:
+      - "6006:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydatabase
+    networks:
+      - marketing_network
+
+  marketing-communication:
+    build: ./marketingcommunication/.
+    ports:
+      - "5003:80"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    env_file:
+      - ./env_files/marketing_communication.env
+    networks:
+      - app_network
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+      RABBITMQ_DEFAULT_VHOST: "/"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_network
+
+  # consul:
+  #   image: consul:1.15
+  #   container_name: consul
+  #   command: agent -dev -ui -client 0.0.0.0
+  #   networks:
+  #     app_network:
+  #       ipv4_address: 172.20.0.2
+  #   ports:
+  #     - "8500:8500" # Consul HTTP API
+  #     - "8600:8600/udp" # Consul DNS
+  
+
+  kong-database:
+    image: postgres:15 
+    # platform: linux/amd64  # <- required for Mac M1 chip. Otherwise, can remove
+    restart: always
+    network_mode: host
+    environment:
+      POSTGRES_DB: kong
+      POSTGRES_USER: kong
+      POSTGRES_PASSWORD: password
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "kong"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - kongdata:/var/lib/postgresql/data
+
+  kong-migration:
+    image: kong/kong-gateway:3.2.2.5 # tested 20231101
+    # platform: linux/amd64  # <- required for Mac M1 chip. Otherwise, can remove
+    command: "kong migrations bootstrap"
+    restart: on-failure
+    network_mode: host
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: host
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: password
+    depends_on:
+      - kong-database
+
+  kong:
+    image: kong/kong-gateway:3.2.2.5 # tested
+    restart: always
+    network_mode: host
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: localhost
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: password
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_ADMIN_GUI_URL: http://localhost:8002
+    depends_on:
+      - kong-migration
+    
+volumes:
+  postgres_data:
+  rabbitmq_data:
+  db-data:
+  # db-data2:
+  db-data4:
+  # db-data5:
+  kongdata:
+  error_log_data:
+
+networks:
+  app_network:
+    name: app_network
+  kong_network:
+    name: kong_network
+  # shipping_network:
+  #   name: shipping_network
+  cart_network:
+    name: cart_network
+  # order_network:
+  #   name: order_network
+  inventory_network:
+    name: inventory_network
+  marketing_network:
+    name: marketing_network

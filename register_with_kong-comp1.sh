@@ -5,15 +5,12 @@ KONG_ADMIN_URL=http://localhost:8001
 
 # Service details
 SERVICE_NAME="shipping"
-SERVICE_URL="http://shipping:5000/shipping"
+SERVICE_URL="http://192.168.202.70:5005/shipping"
 ROUTE_PATHS="/shipping"
 
 # Register service with Kong
 echo "Registering $SERVICE_NAME with Kong..."
 curl -i -X POST --url $KONG_ADMIN_URL/services/ --data "name=$SERVICE_NAME" --data "url=$SERVICE_URL"
-
-curl -i -X POST --url http://20.243.86.0:8001/services/ --data "name=inventory" --data "url=http://111.65.63.12:5001/item"
-curl -i -X POST --url http://localhost:8001/services/inventory/routes --data "paths[]=/item"
 
 # Add a route for the service
 echo "Adding route for $SERVICE_NAME..."
@@ -34,7 +31,7 @@ curl -i -X POST --url $KONG_ADMIN_URL/services/$SERVICE_NAME/routes --data "path
 
 # Service details
 SERVICE_NAME="order"
-SERVICE_URL="http://order:5000/order"
+SERVICE_URL="http://192.168.202.70:5002/order"
 ROUTE_PATHS="/order"
 
 # Register service with Kong
