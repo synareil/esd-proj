@@ -16,6 +16,10 @@ Explanation:
 * Register with kong.sh is to register with kong.
 * Item_dummy.sh imports dummy data for you to try. 
 
+# 2.Ensure you have env_files folder
+1. Unzip and place in root directory
+2. you may request the file from julian.maximal@gmail.com
+
 # 3.Accessing website UI for users and admin
 1. Access the users webpage via http://localhost:8008
 2. Access the admin webpage via http://localhost:8009
