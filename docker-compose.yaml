@@ -115,6 +115,7 @@ services:
 
   shipping:
     build: ./shipping/.
+    restart: on-failure
     ports:
       - "5005:5000"
     environment:
@@ -124,7 +125,6 @@ services:
     networks:
       - app_network
       - shipping_network
-    restart: always
 
   shipping-db:
     image: mysql:8.0
@@ -136,11 +136,17 @@ services:
     environment:
       MYSQL_DATABASE: proj_shipping
       MYSQL_ROOT_PASSWORD: password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     volumes:
       - db-data5:/var/lib/mysql
 
   cart:
     build: ./cart/.
+    restart: on-failure
     ports:
       - "5004:5000"
     environment:
@@ -150,11 +156,11 @@ services:
     networks:
       - app_network
       - cart_network
-    restart: always
 
   cart-db:
     image: mysql:8.0
     platform: linux/amd64
+    restart: always
     ports:
       - "6004:3306"
     environment:
@@ -164,10 +170,15 @@ services:
       - db-data4:/var/lib/mysql
     networks:
       - cart_network
-    restart: always
-
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+ 
   order:
     build: ./orders/.
+    restart: on-failure
     ports:
       - "5002:5000"
     environment:
@@ -188,11 +199,17 @@ services:
     environment:
       MYSQL_DATABASE: proj_order
       MYSQL_ROOT_PASSWORD: password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     volumes:
       - db-data2:/var/lib/mysql
           - shipping-db
     networks:
       - order_network
+    restart: always
 
   inventory:
     build: ./inventory/.
@@ -205,6 +222,7 @@ services:
     networks:
       - app_network
       - inventory_network
+    restart: on-failure
 
   inventory-db:
     image: mysql:8.0
@@ -214,13 +232,21 @@ services:
     environment:
       MYSQL_DATABASE: proj_inventory
       MYSQL_ROOT_PASSWORD: password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     volumes:
       - db-data:/var/lib/mysql
     networks:
       - inventory_network
+    restart: always
+
 
   marketing-content:
     container_name: marketing-content
+    restart: on-failure
     build: ./marketingcontent/.
     volumes:
       - ./marketingcontent/.:/usr/src/app
@@ -247,8 +273,14 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: mydatabase
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-U", "user", "-d", "mydatabase"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     networks:
       - marketing_network
+    restart: always
 
   marketing-communication:
     build: ./marketingcommunication/.
@@ -261,6 +293,7 @@ services:
       - ./env_files/marketing_communication.env
     networks:
       - app_network
+    restart: on-failure
 
   rabbitmq:
     image: "rabbitmq:3-management"
@@ -280,6 +313,7 @@ services:
       retries: 5
     networks:
       - app_network
+    restart: always
 
   # consul:
   #   image: consul:1.15
@@ -312,6 +346,7 @@ services:
       retries: 5
     volumes:
       - kongdata:/var/lib/postgresql/data
+
 
   kong-migration:
     image: kong/kong-gateway:3.2.2.5 # tested 20231101
